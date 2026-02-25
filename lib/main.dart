@@ -7,6 +7,7 @@ import 'features/notes/notes_screen.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
+import 'features/stats/stats_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +66,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const TasksScreen(),
-    const NotesScreen(), // Akan kita buat berikutnya
+    const NotesScreen(),
+    const StatsScreen(),
   ];
 
   @override
@@ -107,6 +109,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               icon: Icon(Icons.note_outlined),
               activeIcon: Icon(Icons.note),
               label: 'Notes',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart_outlined),
+              activeIcon: Icon(Icons.bar_chart),
+              label: 'Stats', // Ubah dari 'Level' ke 'Stats'
             ),
           ],
         ),
