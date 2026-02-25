@@ -36,7 +36,7 @@ enum TaskDifficulty {
   }
 }
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 4)
 enum StatType {
   @HiveField(0)
   intelligence,

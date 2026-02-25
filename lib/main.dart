@@ -16,6 +16,8 @@ void main() async {
 
   // Register adapters
   Hive.registerAdapter(UserModelAdapter());
+  Hive.registerAdapter(TaskDifficultyAdapter());
+  Hive.registerAdapter(StatTypeAdapter());
   Hive.registerAdapter(TaskModelAdapter());
   Hive.registerAdapter(NoteModelAdapter());
 

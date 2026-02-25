@@ -8,7 +8,7 @@ part of 'task_model.dart';
 
 class TaskModelAdapter extends TypeAdapter<TaskModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 3;
 
   @override
   TaskModel read(BinaryReader reader) {
@@ -57,6 +57,99 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is TaskModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class TaskDifficultyAdapter extends TypeAdapter<TaskDifficulty> {
+  @override
+  final int typeId = 1;
+
+  @override
+  TaskDifficulty read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return TaskDifficulty.easy;
+      case 1:
+        return TaskDifficulty.medium;
+      case 2:
+        return TaskDifficulty.hard;
+      default:
+        return TaskDifficulty.easy;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, TaskDifficulty obj) {
+    switch (obj) {
+      case TaskDifficulty.easy:
+        writer.writeByte(0);
+        break;
+      case TaskDifficulty.medium:
+        writer.writeByte(1);
+        break;
+      case TaskDifficulty.hard:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TaskDifficultyAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class StatTypeAdapter extends TypeAdapter<StatType> {
+  @override
+  final int typeId = 4;
+
+  @override
+  StatType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return StatType.intelligence;
+      case 1:
+        return StatType.discipline;
+      case 2:
+        return StatType.health;
+      case 3:
+        return StatType.wealth;
+      default:
+        return StatType.intelligence;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, StatType obj) {
+    switch (obj) {
+      case StatType.intelligence:
+        writer.writeByte(0);
+        break;
+      case StatType.discipline:
+        writer.writeByte(1);
+        break;
+      case StatType.health:
+        writer.writeByte(2);
+        break;
+      case StatType.wealth:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StatTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
