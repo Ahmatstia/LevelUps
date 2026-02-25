@@ -16,11 +16,33 @@ class UserNotifier extends StateNotifier<UserModel?> {
     loadUser();
   }
 
+  // Check and reset streak if needed (called on app start)
+  Future<void> validateStreak() async {
+    if (state == null) return;
+
+    final lastDate = state!.lastTaskDate;
+    final today = DateTime.now();
+    final todayNormalized = DateTime(today.year, today.month, today.day);
+    final lastDateNormalized = DateTime(
+      lastDate.year,
+      lastDate.month,
+      lastDate.day,
+    );
+
+    final difference = todayNormalized.difference(lastDateNormalized).inDays;
+
+    // Jika lewat lebih dari 1 hari dan bukan hari ini, reset streak
+    if (difference > 1) {
+      await updateUser((user) => user.copyWith(streak: 0));
+    }
+  }
+
   // Load user dari Hive
   Future<void> loadUser() async {
     final user = await _repository.getUser();
     if (user != null) {
       state = user;
+      await validateStreak(); // Validasi streak saat app dibuka
     } else {
       // Jika belum ada user, buat default
       state = UserModel.initial('Player');
@@ -86,20 +108,36 @@ class UserNotifier extends StateNotifier<UserModel?> {
 
     final lastDate = state!.lastTaskDate;
     final today = DateTime.now();
-    final yesterday = today.subtract(const Duration(days: 1));
 
-    // Reset jika lebih dari 1 hari
-    if (lastDate.isBefore(yesterday)) {
-      await updateUser((user) => user.copyWith(streak: 0));
-    }
+    // Normalisasi tanggal (abaikan jam/menit/detik)
+    final todayNormalized = DateTime(today.year, today.month, today.day);
+    final lastDateNormalized = DateTime(
+      lastDate.year,
+      lastDate.month,
+      lastDate.day,
+    );
+    final taskDateNormalized = DateTime(
+      taskDate.year,
+      taskDate.month,
+      taskDate.day,
+    );
 
-    // Tambah streak jika task hari ini
-    if (taskDate.year == today.year &&
-        taskDate.month == today.month &&
-        taskDate.day == today.day) {
+    // Jangan lakukan apa-apa jika task bukan hari ini (mungkin task lama yang diedit)
+    if (taskDateNormalized != todayNormalized) return;
+
+    // Jika sudah mengerjakan task hari ini, jangan tambah streak lagi
+    if (lastDateNormalized == todayNormalized) return;
+
+    final difference = todayNormalized.difference(lastDateNormalized).inDays;
+
+    if (difference == 1) {
+      // Jika nyambung dari kemarin
       await updateUser(
         (user) => user.copyWith(streak: user.streak + 1, lastTaskDate: today),
       );
+    } else {
+      // Jika streak putus atau baru mulai
+      await updateUser((user) => user.copyWith(streak: 1, lastTaskDate: today));
     }
   }
 
