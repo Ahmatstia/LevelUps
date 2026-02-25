@@ -17,6 +17,11 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
 
   TaskDifficulty _selectedDifficulty = TaskDifficulty.medium;
   StatType _selectedStat = StatType.intelligence;
+  RecurringType _selectedRecurring = RecurringType.none;
+  EnergyLevel _selectedEnergy = EnergyLevel.medium;
+
+  DateTime? _selectedDueDate;
+  TimeOfDay? _selectedDueTime;
 
   @override
   void dispose() {
@@ -28,7 +33,7 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      height: MediaQuery.of(context).size.height * 0.9,
       decoration: const BoxDecoration(
         color: Color(0xFF1E1E1E),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -129,6 +134,67 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                     ),
                     const SizedBox(height: 20),
 
+                    // Due Date & Time
+                    const Text(
+                      'Due Date & Time',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(child: _buildDatePicker()),
+                        const SizedBox(width: 12),
+                        Expanded(child: _buildTimePicker()),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Recurring
+                    const Text(
+                      'Repeat',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      children: [
+                        _buildRecurringChip(RecurringType.none),
+                        _buildRecurringChip(RecurringType.daily),
+                        _buildRecurringChip(RecurringType.weekly),
+                        _buildRecurringChip(RecurringType.monthly),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Energy Level
+                    const Text(
+                      'Energy Level',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildEnergyChip(EnergyLevel.low),
+                        const SizedBox(width: 12),
+                        _buildEnergyChip(EnergyLevel.medium),
+                        const SizedBox(width: 12),
+                        _buildEnergyChip(EnergyLevel.high),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
                     // Difficulty Selection
                     const Text(
                       'Difficulty',
@@ -218,6 +284,194 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
     );
   }
 
+  Widget _buildDatePicker() {
+    return GestureDetector(
+      onTap: _pickDate,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, size: 16, color: Colors.grey[400]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _selectedDueDate == null
+                    ? 'Select date'
+                    : '${_selectedDueDate!.day}/${_selectedDueDate!.month}/${_selectedDueDate!.year}',
+                style: TextStyle(
+                  color: _selectedDueDate == null
+                      ? Colors.grey[600]
+                      : Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimePicker() {
+    return GestureDetector(
+      onTap: _pickTime,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.access_time, size: 16, color: Colors.grey[400]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _selectedDueTime == null
+                    ? 'Select time'
+                    : _selectedDueTime!.format(context),
+                style: TextStyle(
+                  color: _selectedDueTime == null
+                      ? Colors.grey[600]
+                      : Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              surface: Color(0xFF1E1E1E),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (date != null) {
+      setState(() {
+        _selectedDueDate = date;
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              surface: Color(0xFF1E1E1E),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (time != null) {
+      setState(() {
+        _selectedDueTime = time;
+      });
+    }
+  }
+
+  Widget _buildRecurringChip(RecurringType type) {
+    final isSelected = _selectedRecurring == type;
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedRecurring = type),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.blue.withValues(alpha: 0.2)
+              : Colors.grey[900],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey[800]!,
+          ),
+        ),
+        child: Text(
+          type.displayName,
+          style: TextStyle(color: isSelected ? Colors.blue : Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnergyChip(EnergyLevel level) {
+    final isSelected = _selectedEnergy == level;
+    Color color;
+
+    switch (level) {
+      case EnergyLevel.low:
+        color = Colors.green;
+        break;
+      case EnergyLevel.medium:
+        color = Colors.orange;
+        break;
+      case EnergyLevel.high:
+        color = Colors.red;
+        break;
+    }
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedEnergy = level),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.2) : Colors.grey[900],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: isSelected ? color : Colors.grey[800]!),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                _getEnergyIcon(level),
+                size: 20,
+                color: isSelected ? color : Colors.grey,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                level.displayName,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected ? color : Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDifficultyChip(TaskDifficulty difficulty) {
     final isSelected = _selectedDifficulty == difficulty;
     Color color;
@@ -242,10 +496,7 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
           decoration: BoxDecoration(
             color: isSelected ? color.withValues(alpha: 0.2) : Colors.grey[900],
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? color : Colors.grey[800]!,
-              width: 1,
-            ),
+            border: Border.all(color: isSelected ? color : Colors.grey[800]!),
           ),
           child: Column(
             children: [
@@ -324,6 +575,21 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
   void _addTask() async {
     if (_formKey.currentState!.validate()) {
       try {
+        // Combine date and time if both selected
+        DateTime? dueDate;
+        if (_selectedDueDate != null && _selectedDueTime != null) {
+          dueDate = DateTime(
+            _selectedDueDate!.year,
+            _selectedDueDate!.month,
+            _selectedDueDate!.day,
+            _selectedDueTime!.hour,
+            _selectedDueTime!.minute,
+          );
+          print('Due Date set: $dueDate'); // Debug log
+        } else {
+          print('No due date selected');
+        }
+
         await ref
             .read(taskProvider.notifier)
             .addTask(
@@ -331,6 +597,9 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
               description: _descriptionController.text,
               difficulty: _selectedDifficulty,
               statType: _selectedStat,
+              dueDate: dueDate, // Pastikan ini terkirim
+              recurringType: _selectedRecurring,
+              energyLevel: _selectedEnergy,
             );
 
         if (mounted) {
@@ -343,6 +612,7 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
           );
         }
       } catch (e) {
+        print('Error adding task: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
@@ -362,6 +632,17 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
         return Icons.favorite;
       case StatType.wealth:
         return Icons.attach_money;
+    }
+  }
+
+  IconData _getEnergyIcon(EnergyLevel level) {
+    switch (level) {
+      case EnergyLevel.low:
+        return Icons.battery_1_bar;
+      case EnergyLevel.medium:
+        return Icons.battery_3_bar;
+      case EnergyLevel.high:
+        return Icons.battery_full;
     }
   }
 }

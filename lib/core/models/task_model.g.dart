@@ -25,13 +25,16 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       isCompleted: fields[5] as bool,
       createdAt: fields[6] as DateTime,
       completedAt: fields[7] as DateTime?,
+      dueDate: fields[8] as DateTime?,
+      recurringType: fields[9] as RecurringType?,
+      energyLevel: fields[10] as EnergyLevel?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +50,13 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(6)
       ..write(obj.createdAt)
       ..writeByte(7)
-      ..write(obj.completedAt);
+      ..write(obj.completedAt)
+      ..writeByte(8)
+      ..write(obj.dueDate)
+      ..writeByte(9)
+      ..write(obj.recurringType)
+      ..writeByte(10)
+      ..write(obj.energyLevel);
   }
 
   @override
@@ -150,6 +159,99 @@ class StatTypeAdapter extends TypeAdapter<StatType> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is StatTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class RecurringTypeAdapter extends TypeAdapter<RecurringType> {
+  @override
+  final int typeId = 5;
+
+  @override
+  RecurringType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return RecurringType.none;
+      case 1:
+        return RecurringType.daily;
+      case 2:
+        return RecurringType.weekly;
+      case 3:
+        return RecurringType.monthly;
+      default:
+        return RecurringType.none;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, RecurringType obj) {
+    switch (obj) {
+      case RecurringType.none:
+        writer.writeByte(0);
+        break;
+      case RecurringType.daily:
+        writer.writeByte(1);
+        break;
+      case RecurringType.weekly:
+        writer.writeByte(2);
+        break;
+      case RecurringType.monthly:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RecurringTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class EnergyLevelAdapter extends TypeAdapter<EnergyLevel> {
+  @override
+  final int typeId = 6;
+
+  @override
+  EnergyLevel read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return EnergyLevel.low;
+      case 1:
+        return EnergyLevel.medium;
+      case 2:
+        return EnergyLevel.high;
+      default:
+        return EnergyLevel.low;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, EnergyLevel obj) {
+    switch (obj) {
+      case EnergyLevel.low:
+        writer.writeByte(0);
+        break;
+      case EnergyLevel.medium:
+        writer.writeByte(1);
+        break;
+      case EnergyLevel.high:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EnergyLevelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -3,11 +3,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/tasks/tasks_screen.dart';
+import 'features/stats/stats_screen.dart';
 import 'features/notes/notes_screen.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
-import 'features/stats/stats_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,12 +15,14 @@ void main() async {
   // Inisialisasi Hive
   await Hive.initFlutter();
 
-  // Register adapters
+  // Register adapters - pastikan semua terdaftar
   Hive.registerAdapter(UserModelAdapter());
-  Hive.registerAdapter(TaskDifficultyAdapter());
-  Hive.registerAdapter(StatTypeAdapter());
   Hive.registerAdapter(TaskModelAdapter());
   Hive.registerAdapter(NoteModelAdapter());
+  Hive.registerAdapter(TaskDifficultyAdapter());
+  Hive.registerAdapter(StatTypeAdapter());
+  Hive.registerAdapter(RecurringTypeAdapter()); // Tambahkan ini
+  Hive.registerAdapter(EnergyLevelAdapter()); // Tambahkan ini
 
   // Buka box yang diperlukan
   await Hive.openBox('settings');
@@ -66,8 +68,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const TasksScreen(),
-    const NotesScreen(),
     const StatsScreen(),
+    const NotesScreen(),
   ];
 
   @override
@@ -106,14 +108,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               label: 'Tasks',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart_outlined),
+              activeIcon: Icon(Icons.bar_chart),
+              label: 'Stats',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.note_outlined),
               activeIcon: Icon(Icons.note),
               label: 'Notes',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart_outlined),
-              activeIcon: Icon(Icons.bar_chart),
-              label: 'Stats', // Ubah dari 'Level' ke 'Stats'
             ),
           ],
         ),

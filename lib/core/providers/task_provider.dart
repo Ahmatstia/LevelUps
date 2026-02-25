@@ -24,18 +24,24 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     state = tasks;
   }
 
-  // Tambah task
+  // Tambah task dengan parameter lengkap
   Future<void> addTask({
     required String title,
     required String description,
     required TaskDifficulty difficulty,
     required StatType statType,
+    DateTime? dueDate, // Parameter ini harus ada
+    RecurringType? recurringType,
+    EnergyLevel? energyLevel,
   }) async {
     final task = TaskModel.create(
       title: title,
       description: description,
       difficulty: difficulty,
       statType: statType,
+      dueDate: dueDate, // Pastikan ini digunakan
+      recurringType: recurringType,
+      energyLevel: energyLevel,
     );
 
     await _repository.addTask(task);
@@ -74,6 +80,46 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
 
     // Update streak
     await userNotifier.updateStreak(DateTime.now());
+
+    // Handle recurring task
+    if (task.recurringType != null &&
+        task.recurringType != RecurringType.none) {
+      _createNextRecurringTask(task);
+    }
+  }
+
+  // Buat task berikutnya untuk recurring
+  void _createNextRecurringTask(TaskModel completedTask) {
+    DateTime? nextDueDate;
+
+    switch (completedTask.recurringType) {
+      case RecurringType.daily:
+        nextDueDate = completedTask.dueDate?.add(const Duration(days: 1));
+        break;
+      case RecurringType.weekly:
+        nextDueDate = completedTask.dueDate?.add(const Duration(days: 7));
+        break;
+      case RecurringType.monthly:
+        nextDueDate = completedTask.dueDate?.add(const Duration(days: 30));
+        break;
+      default:
+        return;
+    }
+
+    if (nextDueDate != null) {
+      final newTask = TaskModel.create(
+        title: completedTask.title,
+        description: completedTask.description,
+        difficulty: completedTask.difficulty,
+        statType: completedTask.statType,
+        dueDate: nextDueDate,
+        recurringType: completedTask.recurringType,
+        energyLevel: completedTask.energyLevel,
+      );
+
+      _repository.addTask(newTask);
+      state = [...state, newTask];
+    }
   }
 
   // Hapus task
@@ -94,6 +140,24 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     state = newState;
   }
 
+  // Dapatkan task berdasarkan filter
+  List<TaskModel> getTasksByStatus(String status) {
+    return state.where((task) => task.status == status).toList();
+  }
+
+  // Dapatkan task hari ini (due today)
+  List<TaskModel> get todayTasks {
+    final now = DateTime.now();
+    return state.where((task) {
+      if (task.isCompleted) return false;
+      if (task.dueDate == null) return false;
+
+      return task.dueDate!.year == now.year &&
+          task.dueDate!.month == now.month &&
+          task.dueDate!.day == now.day;
+    }).toList();
+  }
+
   // Dapatkan task yang belum selesai
   List<TaskModel> get incompleteTasks {
     return state.where((task) => !task.isCompleted).toList();
@@ -104,14 +168,16 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     return state.where((task) => task.isCompleted).toList();
   }
 
-  // Dapatkan task hari ini
-  List<TaskModel> get todayTasks {
-    final today = DateTime.now();
-    return state.where((task) {
-      return task.createdAt.year == today.year &&
-          task.createdAt.month == today.month &&
-          task.createdAt.day == today.day;
-    }).toList();
+  // Dapatkan task yang overdue
+  List<TaskModel> get overdueTasks {
+    return state.where((task) => !task.isCompleted && task.isOverdue).toList();
+  }
+
+  // Dapatkan task berdasarkan energy level
+  List<TaskModel> getTasksByEnergy(EnergyLevel level) {
+    return state
+        .where((task) => !task.isCompleted && task.energyLevel == level)
+        .toList();
   }
 }
 
@@ -138,10 +204,19 @@ final completedTasksProvider = Provider<List<TaskModel>>((ref) {
 // Provider untuk today's tasks
 final todayTasksProvider = Provider<List<TaskModel>>((ref) {
   final tasks = ref.watch(taskProvider);
-  final today = DateTime.now();
+  final now = DateTime.now();
   return tasks.where((task) {
-    return task.createdAt.year == today.year &&
-        task.createdAt.month == today.month &&
-        task.createdAt.day == today.day;
+    if (task.isCompleted) return false;
+    if (task.dueDate == null) return false;
+
+    return task.dueDate!.year == now.year &&
+        task.dueDate!.month == now.month &&
+        task.dueDate!.day == now.day;
   }).toList();
+});
+
+// Provider untuk overdue tasks
+final overdueTasksProvider = Provider<List<TaskModel>>((ref) {
+  final tasks = ref.watch(taskProvider);
+  return tasks.where((task) => !task.isCompleted && task.isOverdue).toList();
 });
