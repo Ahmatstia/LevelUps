@@ -5,11 +5,15 @@ import 'features/dashboard/dashboard_screen.dart';
 import 'features/tasks/tasks_screen.dart';
 import 'features/stats/stats_screen.dart';
 import 'features/notes/notes_screen.dart';
+import 'features/gamification/gamification_screen.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
 import 'core/models/tag_model.dart';
 import 'core/models/subtask_model.dart';
+import 'core/models/achievement_model.dart';
+import 'core/models/quest_model.dart';
+import 'core/models/skill_node_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,11 +32,22 @@ void main() async {
   Hive.registerAdapter(TagModelAdapter());
   Hive.registerAdapter(SubtaskModelAdapter());
 
+  // New RPG Gamification Adapters
+  Hive.registerAdapter(AchievementModelAdapter());
+  Hive.registerAdapter(QuestModelAdapter());
+  Hive.registerAdapter(QuestTypeAdapter());
+  Hive.registerAdapter(SkillNodeModelAdapter());
+
   await Hive.openBox('settings');
   await Hive.openBox<UserModel>('user_data');
   await Hive.openBox<TaskModel>('tasks');
   await Hive.openBox<NoteModel>('notes');
   await Hive.openBox<TagModel>('tags');
+
+  // New RPG Gamification Boxes
+  await Hive.openBox<AchievementModel>('achievements');
+  await Hive.openBox<QuestModel>('quests');
+  await Hive.openBox<SkillNodeModel>('skills');
 
   runApp(const ProviderScope(child: LevelUpApp()));
 }
@@ -69,9 +84,11 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
+  // Convert to getter to avoid Hot Reload RangeError issues when adding new screens
+  List<Widget> get _screens => [
     const DashboardScreen(),
     const TasksScreen(),
+    const GamificationScreen(), // The Hub
     const StatsScreen(),
     const NotesScreen(),
   ];
@@ -110,6 +127,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               icon: Icon(Icons.task_outlined),
               activeIcon: Icon(Icons.task),
               label: 'Tasks',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.emoji_events_outlined),
+              activeIcon: Icon(Icons.emoji_events),
+              label: 'RPG',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart_outlined),

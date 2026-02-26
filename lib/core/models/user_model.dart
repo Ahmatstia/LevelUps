@@ -31,6 +31,9 @@ class UserModel {
   @HiveField(8)
   final DateTime lastTaskDate;
 
+  @HiveField(9, defaultValue: 0)
+  final int skillPoints; // New field for RPG Skills
+
   UserModel({
     required this.name,
     required this.level,
@@ -41,6 +44,7 @@ class UserModel {
     required this.health,
     required this.wealth,
     required this.lastTaskDate,
+    this.skillPoints = 0,
   });
 
   // Factory untuk user baru
@@ -55,6 +59,7 @@ class UserModel {
       health: 0,
       wealth: 0,
       lastTaskDate: DateTime.now().subtract(const Duration(days: 1)),
+      skillPoints: 0,
     );
   }
 
@@ -69,6 +74,7 @@ class UserModel {
     int? health,
     int? wealth,
     DateTime? lastTaskDate,
+    int? skillPoints,
   }) {
     return UserModel(
       name: name ?? this.name,
@@ -80,6 +86,7 @@ class UserModel {
       health: health ?? this.health,
       wealth: wealth ?? this.wealth,
       lastTaskDate: lastTaskDate ?? this.lastTaskDate,
+      skillPoints: skillPoints ?? this.skillPoints,
     );
   }
 }

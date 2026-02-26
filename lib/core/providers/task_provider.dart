@@ -3,6 +3,7 @@ import '../models/task_model.dart';
 // Hapus import SubtaskModel karena tidak digunakan di sini
 import '../repositories/task_repository.dart';
 import 'user_provider.dart';
+import 'gamification_engine.dart';
 
 // Repository provider
 final taskRepositoryProvider = Provider<TaskRepository>((ref) {
@@ -88,6 +89,9 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
 
     // Update streak
     await userNotifier.updateStreak(DateTime.now());
+
+    // Trigger Gamification Engine for Quests & Achievements
+    await _ref.read(gamificationEngineProvider).onTaskCompleted(updatedTask);
 
     // Handle recurring task
     if (task.recurringType != null &&

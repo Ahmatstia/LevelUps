@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../models/task_model.dart'; // Tambahkan import ini
 import '../repositories/user_repository.dart';
+import 'gamification_engine.dart';
 
 // Repository provider
 final userRepositoryProvider = Provider<UserRepository>((ref) {
@@ -11,8 +12,9 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 // State notifier untuk user
 class UserNotifier extends StateNotifier<UserModel?> {
   final UserRepository _repository;
+  final Ref _ref;
 
-  UserNotifier(this._repository) : super(null) {
+  UserNotifier(this._repository, this._ref) : super(null) {
     loadUser();
   }
 
@@ -83,12 +85,18 @@ class UserNotifier extends StateNotifier<UserModel?> {
   Future<void> addXp(int xpAmount) async {
     if (state == null) return;
 
+    final oldLevel = state!.level;
     final newTotalXp = state!.totalXp + xpAmount;
     final newLevel = getLevelFromXp(newTotalXp);
 
     await updateUser((user) {
       return user.copyWith(totalXp: newTotalXp, level: newLevel);
     });
+
+    // Check level up and trigger engine
+    if (newLevel > oldLevel) {
+      _ref.read(gamificationEngineProvider).onLevelUp(newLevel);
+    }
   }
 
   // Tambah stat
@@ -146,6 +154,11 @@ class UserNotifier extends StateNotifier<UserModel?> {
       // Jika streak putus atau baru mulai
       await updateUser((user) => user.copyWith(streak: 1, lastTaskDate: today));
     }
+
+    // Trigger streak checked in GamificationEngine
+    if (state != null) {
+      _ref.read(gamificationEngineProvider).onStreakUpdated(state!.streak);
+    }
   }
 
   // Reset user
@@ -158,7 +171,7 @@ class UserNotifier extends StateNotifier<UserModel?> {
 // Provider untuk user state
 final userProvider = StateNotifierProvider<UserNotifier, UserModel?>((ref) {
   final repository = ref.watch(userRepositoryProvider);
-  return UserNotifier(repository);
+  return UserNotifier(repository, ref); // Inject ref
 });
 
 // Provider untuk XP requirement di level saat ini
