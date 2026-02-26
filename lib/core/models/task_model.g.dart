@@ -28,13 +28,19 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       dueDate: fields[8] as DateTime?,
       recurringType: fields[9] as RecurringType?,
       energyLevel: fields[10] as EnergyLevel?,
+      quadrant: fields[11] == null
+          ? QuadrantType.doFirst
+          : fields[11] as QuadrantType,
+      subtasks:
+          fields[12] == null ? [] : (fields[12] as List).cast<SubtaskModel>(),
+      tagIds: fields[13] == null ? [] : (fields[13] as List).cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +62,13 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(9)
       ..write(obj.recurringType)
       ..writeByte(10)
-      ..write(obj.energyLevel);
+      ..write(obj.energyLevel)
+      ..writeByte(11)
+      ..write(obj.quadrant)
+      ..writeByte(12)
+      ..write(obj.subtasks)
+      ..writeByte(13)
+      ..write(obj.tagIds);
   }
 
   @override
@@ -252,6 +264,55 @@ class EnergyLevelAdapter extends TypeAdapter<EnergyLevel> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is EnergyLevelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class QuadrantTypeAdapter extends TypeAdapter<QuadrantType> {
+  @override
+  final int typeId = 9;
+
+  @override
+  QuadrantType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return QuadrantType.doFirst;
+      case 1:
+        return QuadrantType.schedule;
+      case 2:
+        return QuadrantType.delegate;
+      case 3:
+        return QuadrantType.eliminate;
+      default:
+        return QuadrantType.doFirst;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, QuadrantType obj) {
+    switch (obj) {
+      case QuadrantType.doFirst:
+        writer.writeByte(0);
+        break;
+      case QuadrantType.schedule:
+        writer.writeByte(1);
+        break;
+      case QuadrantType.delegate:
+        writer.writeByte(2);
+        break;
+      case QuadrantType.eliminate:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is QuadrantTypeAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

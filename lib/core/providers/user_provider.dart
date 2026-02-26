@@ -39,12 +39,19 @@ class UserNotifier extends StateNotifier<UserModel?> {
 
   // Load user dari Hive
   Future<void> loadUser() async {
-    final user = await _repository.getUser();
-    if (user != null) {
-      state = user;
-      await validateStreak(); // Validasi streak saat app dibuka
-    } else {
-      // Jika belum ada user, buat default
+    try {
+      final user = await _repository.getUser();
+      if (user != null) {
+        state = user;
+        await validateStreak(); // Validasi streak saat app dibuka
+      } else {
+        // Jika belum ada user, buat default
+        state = UserModel.initial('Player');
+        await _repository.saveUser(state!);
+      }
+    } catch (e) {
+      // Jika terjadi error saat load (misal data corrupt atau adapter error)
+      // Buat user baru agar app tetap bisa jalan
       state = UserModel.initial('Player');
       await _repository.saveUser(state!);
     }

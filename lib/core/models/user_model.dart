@@ -13,19 +13,19 @@ class UserModel {
   @HiveField(2)
   final int totalXp;
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: 0)
   final int streak;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: 0)
   final int intelligence;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: 0)
   final int discipline;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: 0)
   final int health;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: 0)
   final int wealth;
 
   @HiveField(8)

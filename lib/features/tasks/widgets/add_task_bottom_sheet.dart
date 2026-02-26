@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/task_model.dart';
 import '../../../core/providers/task_provider.dart';
+import 'quadrant_selector.dart';
+import 'tag_selector.dart';
 
 class AddTaskBottomSheet extends ConsumerStatefulWidget {
   const AddTaskBottomSheet({super.key});
@@ -19,6 +21,8 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
   StatType _selectedStat = StatType.intelligence;
   RecurringType _selectedRecurring = RecurringType.none;
   EnergyLevel _selectedEnergy = EnergyLevel.medium;
+  QuadrantType _selectedQuadrant = QuadrantType.doFirst;
+  List<String> _selectedTagIds = [];
 
   DateTime? _selectedDueDate;
   TimeOfDay? _selectedDueTime;
@@ -33,7 +37,7 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      height: MediaQuery.of(context).size.height * 0.95,
       decoration: const BoxDecoration(
         color: Color(0xFF1E1E1E),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -192,6 +196,22 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                         const SizedBox(width: 12),
                         _buildEnergyChip(EnergyLevel.high),
                       ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Quadrant Selector
+                    QuadrantSelector(
+                      selectedQuadrant: _selectedQuadrant,
+                      onSelected: (quadrant) =>
+                          setState(() => _selectedQuadrant = quadrant),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Tag Selector
+                    TagSelector(
+                      selectedTagIds: _selectedTagIds,
+                      onChanged: (tagIds) =>
+                          setState(() => _selectedTagIds = tagIds),
                     ),
                     const SizedBox(height: 20),
 
@@ -585,9 +605,6 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
             _selectedDueTime!.hour,
             _selectedDueTime!.minute,
           );
-          print('Due Date set: $dueDate'); // Debug log
-        } else {
-          print('No due date selected');
         }
 
         await ref
@@ -597,9 +614,11 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
               description: _descriptionController.text,
               difficulty: _selectedDifficulty,
               statType: _selectedStat,
-              dueDate: dueDate, // Pastikan ini terkirim
+              dueDate: dueDate,
               recurringType: _selectedRecurring,
               energyLevel: _selectedEnergy,
+              quadrant: _selectedQuadrant,
+              tagIds: _selectedTagIds,
             );
 
         if (mounted) {
@@ -612,7 +631,6 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
           );
         }
       } catch (e) {
-        print('Error adding task: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),

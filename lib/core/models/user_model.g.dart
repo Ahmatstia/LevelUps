@@ -20,11 +20,11 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       name: fields[0] as String,
       level: fields[1] as int,
       totalXp: fields[2] as int,
-      streak: fields[3] as int,
-      intelligence: fields[4] as int,
-      discipline: fields[5] as int,
-      health: fields[6] as int,
-      wealth: fields[7] as int,
+      streak: fields[3] == null ? 0 : fields[3] as int,
+      intelligence: fields[4] == null ? 0 : fields[4] as int,
+      discipline: fields[5] == null ? 0 : fields[5] as int,
+      health: fields[6] == null ? 0 : fields[6] as int,
+      wealth: fields[7] == null ? 0 : fields[7] as int,
       lastTaskDate: fields[8] as DateTime,
     );
   }

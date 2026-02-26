@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/task_model.dart';
-// Hapus baris ini: import '../models/user_model.dart';
+// Hapus import SubtaskModel karena tidak digunakan di sini
 import '../repositories/task_repository.dart';
 import 'user_provider.dart';
 
@@ -30,18 +30,23 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     required String description,
     required TaskDifficulty difficulty,
     required StatType statType,
-    DateTime? dueDate, // Parameter ini harus ada
+    DateTime? dueDate,
     RecurringType? recurringType,
     EnergyLevel? energyLevel,
+    QuadrantType quadrant = QuadrantType.doFirst,
+    List<String> tagIds = const [], // Hapus SubtaskModel
   }) async {
     final task = TaskModel.create(
       title: title,
       description: description,
       difficulty: difficulty,
       statType: statType,
-      dueDate: dueDate, // Pastikan ini digunakan
+      dueDate: dueDate,
       recurringType: recurringType,
       energyLevel: energyLevel,
+      quadrant: quadrant,
+      subtasks: const [], // Default empty list
+      tagIds: tagIds,
     );
 
     await _repository.addTask(task);
@@ -115,6 +120,8 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
         dueDate: nextDueDate,
         recurringType: completedTask.recurringType,
         energyLevel: completedTask.energyLevel,
+        quadrant: completedTask.quadrant,
+        tagIds: completedTask.tagIds,
       );
 
       _repository.addTask(newTask);
@@ -143,6 +150,20 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
   // Dapatkan task berdasarkan filter
   List<TaskModel> getTasksByStatus(String status) {
     return state.where((task) => task.status == status).toList();
+  }
+
+  // Dapatkan task berdasarkan kuadran
+  List<TaskModel> getTasksByQuadrant(QuadrantType quadrant) {
+    return state
+        .where((task) => !task.isCompleted && task.quadrant == quadrant)
+        .toList();
+  }
+
+  // Dapatkan task berdasarkan tag
+  List<TaskModel> getTasksByTag(String tagId) {
+    return state
+        .where((task) => !task.isCompleted && task.tagIds.contains(tagId))
+        .toList();
   }
 
   // Dapatkan task hari ini (due today)
@@ -219,4 +240,41 @@ final todayTasksProvider = Provider<List<TaskModel>>((ref) {
 final overdueTasksProvider = Provider<List<TaskModel>>((ref) {
   final tasks = ref.watch(taskProvider);
   return tasks.where((task) => !task.isCompleted && task.isOverdue).toList();
+});
+
+// Provider untuk tasks per kuadran
+final doFirstTasksProvider = Provider<List<TaskModel>>((ref) {
+  final tasks = ref.watch(taskProvider);
+  return tasks
+      .where(
+        (task) => !task.isCompleted && task.quadrant == QuadrantType.doFirst,
+      )
+      .toList();
+});
+
+final scheduleTasksProvider = Provider<List<TaskModel>>((ref) {
+  final tasks = ref.watch(taskProvider);
+  return tasks
+      .where(
+        (task) => !task.isCompleted && task.quadrant == QuadrantType.schedule,
+      )
+      .toList();
+});
+
+final delegateTasksProvider = Provider<List<TaskModel>>((ref) {
+  final tasks = ref.watch(taskProvider);
+  return tasks
+      .where(
+        (task) => !task.isCompleted && task.quadrant == QuadrantType.delegate,
+      )
+      .toList();
+});
+
+final eliminateTasksProvider = Provider<List<TaskModel>>((ref) {
+  final tasks = ref.watch(taskProvider);
+  return tasks
+      .where(
+        (task) => !task.isCompleted && task.quadrant == QuadrantType.eliminate,
+      )
+      .toList();
 });

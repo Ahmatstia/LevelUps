@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'subtask_model.dart';
 
 part 'task_model.g.dart';
 
@@ -115,6 +116,48 @@ enum EnergyLevel {
   }
 }
 
+@HiveType(typeId: 9)
+enum QuadrantType {
+  @HiveField(0)
+  doFirst,
+
+  @HiveField(1)
+  schedule,
+
+  @HiveField(2)
+  delegate,
+
+  @HiveField(3)
+  eliminate;
+
+  String get displayName {
+    switch (this) {
+      case QuadrantType.doFirst:
+        return 'Do First';
+      case QuadrantType.schedule:
+        return 'Schedule';
+      case QuadrantType.delegate:
+        return 'Delegate';
+      case QuadrantType.eliminate:
+        return 'Eliminate';
+    }
+  }
+
+  // Hapus Color dari sini, akan ditangani di UI
+  String get description {
+    switch (this) {
+      case QuadrantType.doFirst:
+        return 'Important & Urgent - Do now';
+      case QuadrantType.schedule:
+        return 'Important & Not Urgent - Schedule later';
+      case QuadrantType.delegate:
+        return 'Not Important & Urgent - Delegate if possible';
+      case QuadrantType.eliminate:
+        return 'Not Important & Not Urgent - Eliminate';
+    }
+  }
+}
+
 @HiveType(typeId: 3)
 class TaskModel {
   @HiveField(0)
@@ -141,17 +184,23 @@ class TaskModel {
   @HiveField(7)
   final DateTime? completedAt;
 
-  // Due Date
   @HiveField(8)
   final DateTime? dueDate;
 
-  // Recurring type
   @HiveField(9)
   final RecurringType? recurringType;
 
-  // Energy level
   @HiveField(10)
   final EnergyLevel? energyLevel;
+
+  @HiveField(11, defaultValue: QuadrantType.doFirst)
+  final QuadrantType quadrant;
+
+  @HiveField(12, defaultValue: [])
+  final List<SubtaskModel> subtasks;
+
+  @HiveField(13, defaultValue: [])
+  final List<String> tagIds;
 
   TaskModel({
     required this.id,
@@ -165,9 +214,11 @@ class TaskModel {
     this.dueDate,
     this.recurringType,
     this.energyLevel,
+    this.quadrant = QuadrantType.doFirst,
+    this.subtasks = const [],
+    this.tagIds = const [],
   });
 
-  // Factory untuk task baru
   factory TaskModel.create({
     required String title,
     required String description,
@@ -176,6 +227,9 @@ class TaskModel {
     DateTime? dueDate,
     RecurringType? recurringType,
     EnergyLevel? energyLevel,
+    QuadrantType quadrant = QuadrantType.doFirst,
+    List<SubtaskModel> subtasks = const [],
+    List<String> tagIds = const [],
   }) {
     return TaskModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -189,10 +243,12 @@ class TaskModel {
       dueDate: dueDate,
       recurringType: recurringType,
       energyLevel: energyLevel,
+      quadrant: quadrant,
+      subtasks: subtasks,
+      tagIds: tagIds,
     );
   }
 
-  // CopyWith untuk update task
   TaskModel copyWith({
     String? id,
     String? title,
@@ -205,6 +261,9 @@ class TaskModel {
     DateTime? dueDate,
     RecurringType? recurringType,
     EnergyLevel? energyLevel,
+    QuadrantType? quadrant,
+    List<SubtaskModel>? subtasks,
+    List<String>? tagIds,
   }) {
     return TaskModel(
       id: id ?? this.id,
@@ -218,10 +277,31 @@ class TaskModel {
       dueDate: dueDate ?? this.dueDate,
       recurringType: recurringType ?? this.recurringType,
       energyLevel: energyLevel ?? this.energyLevel,
+      quadrant: quadrant ?? this.quadrant,
+      subtasks: subtasks ?? this.subtasks,
+      tagIds: tagIds ?? this.tagIds,
     );
   }
 
-  // Helper methods untuk due date (tanpa UI)
+  int get completedSubtasksCount {
+    return subtasks.where((s) => s.isCompleted).length;
+  }
+
+  double get subtasksProgress {
+    if (subtasks.isEmpty) return 1.0;
+    return completedSubtasksCount / subtasks.length;
+  }
+
+  bool get allSubtasksCompleted {
+    if (subtasks.isEmpty) return false;
+    return completedSubtasksCount == subtasks.length;
+  }
+
+  bool get isFullyCompleted {
+    if (subtasks.isEmpty) return isCompleted;
+    return allSubtasksCompleted;
+  }
+
   bool get isOverdue {
     if (dueDate == null || isCompleted) return false;
     return dueDate!.isBefore(DateTime.now());
@@ -263,7 +343,6 @@ class TaskModel {
     }
   }
 
-  // Status untuk filtering
   String get status {
     if (isCompleted) return 'completed';
     if (isOverdue) return 'overdue';

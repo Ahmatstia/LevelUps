@@ -8,27 +8,31 @@ import 'features/notes/notes_screen.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
+import 'core/models/tag_model.dart';
+import 'core/models/subtask_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Hive
   await Hive.initFlutter();
 
-  // Register adapters - pastikan semua terdaftar
+  // Register all adapters
   Hive.registerAdapter(UserModelAdapter());
   Hive.registerAdapter(TaskModelAdapter());
   Hive.registerAdapter(NoteModelAdapter());
   Hive.registerAdapter(TaskDifficultyAdapter());
   Hive.registerAdapter(StatTypeAdapter());
-  Hive.registerAdapter(RecurringTypeAdapter()); // Tambahkan ini
-  Hive.registerAdapter(EnergyLevelAdapter()); // Tambahkan ini
+  Hive.registerAdapter(RecurringTypeAdapter());
+  Hive.registerAdapter(EnergyLevelAdapter());
+  Hive.registerAdapter(QuadrantTypeAdapter());
+  Hive.registerAdapter(TagModelAdapter());
+  Hive.registerAdapter(SubtaskModelAdapter());
 
-  // Buka box yang diperlukan
   await Hive.openBox('settings');
   await Hive.openBox<UserModel>('user_data');
   await Hive.openBox<TaskModel>('tasks');
   await Hive.openBox<NoteModel>('notes');
+  await Hive.openBox<TagModel>('tags');
 
   runApp(const ProviderScope(child: LevelUpApp()));
 }
