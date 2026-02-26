@@ -43,15 +43,19 @@ class ProductivityHeatmap extends ConsumerWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.get('stats_heatmap'),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Expanded(
+                child: Text(
+                  l10n.get('stats_heatmap'),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 l10n.get('stats_heatmap_desc'),
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
