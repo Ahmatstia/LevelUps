@@ -89,13 +89,13 @@ class QuestNotifier extends StateNotifier<List<QuestModel>> {
     _box.put(q1.id, q1);
   }
 
-  void updateProgress(
+  bool updateProgress(
     String questId,
     int progressToAdd, {
     bool isAbsolute = false,
   }) {
     final quest = _box.get(questId);
-    if (quest == null || quest.isCompleted) return;
+    if (quest == null || quest.isCompleted) return false;
 
     if (isAbsolute) {
       quest.updateProgress(progressToAdd);
@@ -104,13 +104,10 @@ class QuestNotifier extends StateNotifier<List<QuestModel>> {
     }
 
     quest.save();
-    // If quest completed, we need to grant XP (handled in gamification engine)
-
     state = _box.values.toList();
-  }
 
-  List<QuestModel> get completedUnclaimedQuests {
-    return state.where((q) => q.isCompleted).toList();
+    // Return true ONLY IF the quest was just completed by this action
+    return quest.isCompleted;
   }
 }
 

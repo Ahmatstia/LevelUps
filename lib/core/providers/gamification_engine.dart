@@ -27,20 +27,21 @@ class GamificationEngine {
     final quests = _ref.read(questProvider);
     for (var quest in quests) {
       if (!quest.isCompleted) {
+        bool justCompleted = false;
+
         if (quest.title.contains('Complete') && quest.title.contains('tasks')) {
-          questNotifier.updateProgress(quest.id, 1);
+          justCompleted = questNotifier.updateProgress(quest.id, 1);
         }
         if (quest.title == 'Focus Mode' &&
             task.difficulty == TaskDifficulty.hard) {
-          questNotifier.updateProgress(quest.id, 1);
+          justCompleted = questNotifier.updateProgress(quest.id, 1);
+        }
+
+        // Claim rewards immediately only if this specific action completed it
+        if (justCompleted) {
+          await userNotifier.addXp(quest.rewardXp);
         }
       }
-    }
-
-    // Claim rewards immediately for newly completed quests
-    final unClaimedQuests = questNotifier.completedUnclaimedQuests;
-    for (var q in unClaimedQuests) {
-      await userNotifier.addXp(q.rewardXp);
     }
 
     // 2. Process Achievements
