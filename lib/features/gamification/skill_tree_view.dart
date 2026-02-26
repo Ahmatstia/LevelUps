@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/skill_tree_provider.dart';
 import '../../core/models/skill_node_model.dart';
 import '../../core/providers/locale_provider.dart';
+import '../../core/theme/game_theme.dart';
 
 class SkillTreeView extends ConsumerWidget {
   const SkillTreeView({super.key});
@@ -14,11 +16,26 @@ class SkillTreeView extends ConsumerWidget {
     final l10n = ref.watch(l10nProvider);
 
     if (skills.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.account_tree, size: 64, color: Colors.grey[800]),
+            const SizedBox(height: 16),
+            Text(
+              'NO SKILLS AVAILABLE',
+              style: GameTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[700],
+                fontSize: 10,
+                letterSpacing: 2,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
-    // Group skills by StatType for a tiered list view
-    // (A true tree view requires custom painting, using categorized lists here)
+    // Group skills by StatType
     final Map<String, List<SkillNodeModel>> groupedSkills = {};
     for (var skill in skills) {
       final statName = skill.statType.name.toUpperCase();
@@ -26,35 +43,62 @@ class SkillTreeView extends ConsumerWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
       itemCount: groupedSkills.length,
       itemBuilder: (context, index) {
         final statName = groupedSkills.keys.elementAt(index);
         final statSkills = groupedSkills[statName]!;
+        final Color headerColor = _getStatColor(statName);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Section Header
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                '$statName ${l10n.get('rpg_tab_skills').toUpperCase()}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: Theme.of(context).primaryColor,
-                ),
+              padding: EdgeInsets.only(bottom: 10, top: index == 0 ? 0 : 20),
+              child: Row(
+                children: [
+                  Text(
+                    '$statName ${l10n.get('rpg_tab_skills').toUpperCase()}',
+                    style: GameTheme.textTheme.bodySmall?.copyWith(
+                      fontSize: 8,
+                      color: headerColor,
+                      letterSpacing: 3,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      height: 1,
+                      color: headerColor.withValues(alpha: 0.3),
+                    ),
+                  ),
+                ],
               ),
             ),
-            ...statSkills.map(
-              (skill) => _buildSkillCard(context, skill, ref, notifier, l10n),
+            ...statSkills.asMap().entries.map(
+              (e) =>
+                  _buildSkillCard(context, e.value, ref, notifier, l10n, e.key),
             ),
-            const SizedBox(height: 16),
           ],
         );
       },
     );
+  }
+
+  Color _getStatColor(String statName) {
+    switch (statName) {
+      case 'INTELLIGENCE':
+        return GameTheme.manaBlue;
+      case 'DISCIPLINE':
+        return GameTheme.staminaGreen;
+      case 'HEALTH':
+        return GameTheme.hpRed;
+      case 'WEALTH':
+        return GameTheme.goldYellow;
+      default:
+        return GameTheme.neonCyan;
+    }
   }
 
   Widget _buildSkillCard(
@@ -63,149 +107,218 @@ class SkillTreeView extends ConsumerWidget {
     WidgetRef ref,
     SkillTreeNotifier notifier,
     dynamic l10n,
+    int animIndex,
   ) {
-    // We use the central notifier which handles requirements and points
     void onPressedAction() {
       final success = notifier.unlockOrUpgradeSkill(skill.id);
       if (!success) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.get('skill_req_not_met'))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: GameTheme.surface,
+            content: Text(
+              l10n.get('skill_req_not_met'),
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
       }
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: skill.isUnlocked ? 2 : 0,
-      color: skill.isUnlocked ? Colors.white : Colors.grey[100],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: skill.isMaxed
-              ? Colors.amber
-              : (skill.isUnlocked
-                    ? Colors.blue.withValues(alpha: 0.5)
-                    : Colors.grey.withValues(alpha: 0.3)),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            // Icon area
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: skill.isUnlocked
-                    ? Colors.blue.withValues(alpha: 0.1)
-                    : Colors.grey[300],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                skill.isMaxed
-                    ? Icons.star
-                    : (skill.isUnlocked
-                          ? Icons.auto_awesome
-                          : Icons.lock_outline),
-                color: skill.isMaxed
-                    ? Colors.amber
-                    : (skill.isUnlocked ? Colors.blue : Colors.grey),
-              ),
-            ),
-            const SizedBox(width: 16),
+    final isMaxed = skill.isMaxed;
+    final isUnlocked = skill.isUnlocked;
+    final accentColor = isMaxed
+        ? GameTheme.goldYellow
+        : isUnlocked
+        ? GameTheme.neonCyan
+        : Colors.grey[700]!;
 
-            // Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          skill.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: skill.isUnlocked
-                                ? Colors.black87
-                                : Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: skill.isMaxed
-                              ? Colors.amber.withValues(alpha: 0.2)
-                              : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'Lv ${skill.currentLevel}/${skill.maxLevel}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: skill.isMaxed
-                                ? Colors.amber[800]
-                                : Colors.grey[700],
-                          ),
-                        ),
-                      ),
-                    ],
+    return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: GameTheme.surface,
+            border: Border.all(
+              color: isMaxed
+                  ? GameTheme.goldYellow.withValues(alpha: 0.6)
+                  : isUnlocked
+                  ? GameTheme.neonCyan.withValues(alpha: 0.3)
+                  : Colors.white12,
+              width: isUnlocked ? 1.5 : 1.0,
+            ),
+            boxShadow: isUnlocked || isMaxed
+                ? [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.12),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            children: [
+              // Icon
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: accentColor.withValues(alpha: 0.4),
+                    width: 1.5,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    skill.description,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  if (!skill.isMaxed) ...[
-                    const SizedBox(height: 8),
+                  boxShadow: isUnlocked || isMaxed
+                      ? [
+                          BoxShadow(
+                            color: accentColor.withValues(alpha: 0.25),
+                            blurRadius: 8,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Icon(
+                  isMaxed
+                      ? Icons.star
+                      : isUnlocked
+                      ? Icons.auto_awesome
+                      : Icons.lock_outline,
+                  color: accentColor,
+                  size: 22,
+                  shadows: isUnlocked || isMaxed
+                      ? [Shadow(color: accentColor, blurRadius: 10)]
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 14),
+
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(Icons.stars, size: 14, color: Colors.amber[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${l10n.get('skill_cost')}: ${skill.currentCost} SP',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.amber[800],
+                        Expanded(
+                          child: Text(
+                            skill.name.toUpperCase(),
+                            style: GameTheme.textTheme.bodySmall?.copyWith(
+                              fontSize: 9,
+                              letterSpacing: 0.5,
+                              color: isUnlocked
+                                  ? Colors.white
+                                  : Colors.grey[600],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(alpha: 0.1),
+                            border: Border.all(
+                              color: accentColor.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Text(
+                            'LV ${skill.currentLevel}/${skill.maxLevel}',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: accentColor,
+                            ),
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      skill.description,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 11,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    if (!skill.isMaxed) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.stars,
+                            size: 12,
+                            color: GameTheme.goldYellow,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${l10n.get('skill_cost')}: ${skill.currentCost} SP',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 10,
+                              color: GameTheme.goldYellow,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
 
-            // Upgrade Button
-            if (!skill.isMaxed) ...[
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: onPressedAction,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  minimumSize: const Size(60, 36),
+              // Upgrade Button
+              if (!skill.isMaxed) ...[
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: onPressedAction,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: GameTheme.neonCyan.withValues(alpha: 0.15),
+                      border: Border.all(
+                        color: isUnlocked
+                            ? GameTheme.neonCyan
+                            : Colors.grey[700]!,
+                        width: 1.5,
+                      ),
+                      boxShadow: isUnlocked
+                          ? [
+                              BoxShadow(
+                                color: GameTheme.neonCyan.withValues(
+                                  alpha: 0.3,
+                                ),
+                                blurRadius: 8,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Text(
+                      skill.currentLevel == 0
+                          ? l10n.get('skill_unlock').toUpperCase()
+                          : l10n.get('skill_upgrade').toUpperCase(),
+                      style: GameTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 8,
+                        letterSpacing: 1,
+                        color: isUnlocked
+                            ? GameTheme.neonCyan
+                            : Colors.grey[600],
+                      ),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  skill.currentLevel == 0
-                      ? l10n.get('skill_unlock')
-                      : l10n.get('skill_upgrade'),
-                ),
-              ),
+              ],
             ],
-          ],
-        ),
-      ),
-    );
+          ),
+        )
+        .animate(delay: (animIndex * 60).ms)
+        .slideX(begin: 0.2, duration: 280.ms)
+        .fadeIn();
   }
 }

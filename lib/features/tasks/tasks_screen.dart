@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/task_provider.dart';
 import '../../core/models/task_model.dart';
 import '../../core/providers/locale_provider.dart';
+import '../../core/theme/game_theme.dart';
+import '../../core/services/sfx_service.dart';
+import '../../core/widgets/xp_floating_text.dart';
 import 'widgets/add_task_bottom_sheet.dart';
 import 'widgets/calendar_view.dart';
 
@@ -15,39 +19,42 @@ class TasksScreen extends ConsumerStatefulWidget {
 
 class _TasksScreenState extends ConsumerState<TasksScreen> {
   int _selectedMainTab = 0; // 0: Today, 1: All Tasks, 2: Calendar
-  int _selectedSubTab = 0; // 0: To Do, 1: Completed (untuk All Tasks)
+  int _selectedSubTab = 0; // 0: To Do, 1: Completed (for All Tasks)
 
   @override
   Widget build(BuildContext context) {
     final todayTasks = ref.watch(todayTasksProvider);
     final overdueTasks = ref.watch(overdueTasksProvider);
-    // Hapus variable allTasks yang tidak dipakai
     final incompleteTasks = ref.watch(incompleteTasksProvider);
     final completedTasks = ref.watch(completedTasksProvider);
     final l10n = ref.watch(l10nProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: GameTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: GameTheme.background,
         elevation: 0,
         title: Text(
           l10n.get('nav_tasks'),
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 18),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.grey),
+            icon: Icon(
+              Icons.refresh,
+              color: GameTheme.neonCyan.withValues(alpha: 0.7),
+              size: 20,
+            ),
             onPressed: () {
               ref.invalidate(taskProvider);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Tasks refreshed'),
-                  duration: Duration(seconds: 1),
+                SnackBar(
+                  backgroundColor: GameTheme.surface,
+                  content: Text(
+                    'Tasks refreshed',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  duration: const Duration(seconds: 1),
                 ),
               );
             },
@@ -56,160 +63,208 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       ),
       body: Column(
         children: [
-          // Main Tab Bar (Today, All Tasks, Calendar)
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.grey[900],
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Row(
-              children: [
-                _buildMainTab(
-                  'Hari Ini',
-                  0,
-                  todayTasks.length + overdueTasks.length,
-                ),
-                _buildMainTab('Semua Tugas', 1, incompleteTasks.length),
-                _buildMainTab('Kalender', 2, 0),
-              ],
-            ),
+          // ── Game-styled Main Tab Bar ─────────────────────────────
+          _buildMainRpgTabs(
+            todayTasks.length + overdueTasks.length,
+            incompleteTasks.length,
           ),
-
-          // Content based on main tab
+          // ── Content ─────────────────────────────────────────────
           Expanded(
             child: _selectedMainTab == 0
                 ? _buildTodayView(todayTasks, overdueTasks, l10n)
                 : _selectedMainTab == 1
                 ? _buildAllTasksView(incompleteTasks, completedTasks, l10n)
-                : _buildCalendarView(l10n),
+                : _buildCalendarView(),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddTaskSheet,
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: _buildGameFAB(l10n),
+    );
+  }
+
+  // ── Tab Bars ────────────────────────────────────────────────────
+
+  Widget _buildMainRpgTabs(int todayCount, int allCount) {
+    final tabs = [('TODAY', todayCount), ('ALL', allCount), ('MAP', 0)];
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: GameTheme.surface,
+        border: Border.all(color: Colors.white12, width: 1.5),
+      ),
+      child: Row(
+        children: List.generate(tabs.length, (i) {
+          final isSelected = _selectedMainTab == i;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedMainTab = i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: isSelected
+                    ? BoxDecoration(
+                        color: GameTheme.neonCyan.withValues(alpha: 0.15),
+                        border: Border.all(
+                          color: GameTheme.neonCyan,
+                          width: 1.5,
+                        ),
+                      )
+                    : null,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      tabs[i].$1,
+                      style: GameTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 9,
+                        color: isSelected
+                            ? GameTheme.neonCyan
+                            : Colors.grey[600],
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    if (tabs[i].$2 > 0) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? GameTheme.neonCyan
+                              : Colors.grey[700],
+                        ),
+                        child: Text(
+                          tabs[i].$2.toString(),
+                          style: TextStyle(
+                            fontSize: 8,
+                            color: isSelected
+                                ? GameTheme.background
+                                : Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildMainTab(String label, int index, int count) {
-    final isSelected = _selectedMainTab == index;
+  Widget _buildSubRpgTabs(
+    String label1,
+    int count1,
+    String label2,
+    int count2,
+  ) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: GameTheme.surface,
+        border: Border.all(color: Colors.white10, width: 1),
+      ),
+      child: Row(
+        children: [_subTab(label1, count1, 0), _subTab(label2, count2, 1)],
+      ),
+    );
+  }
 
+  Widget _subTab(String label, int count, int index) {
+    final isSelected = _selectedSubTab == index;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _selectedMainTab = index),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.blue : Colors.transparent,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                ),
+        onTap: () => setState(() => _selectedSubTab = index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          color: isSelected
+              ? GameTheme.neonPink.withValues(alpha: 0.15)
+              : Colors.transparent,
+          child: Center(
+            child: Text(
+              count > 0 ? '$label ($count)' : label,
+              style: GameTheme.textTheme.bodySmall?.copyWith(
+                fontSize: 9,
+                color: isSelected ? GameTheme.neonPink : Colors.grey[600],
+                letterSpacing: 0.8,
               ),
-              if (count > 0) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? Colors.white.withValues(alpha: 0.2)
-                        : Colors.grey.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    count.toString(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isSelected ? Colors.white : Colors.grey,
-                    ),
-                  ),
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // TODAY VIEW
+  // ── Views ────────────────────────────────────────────────────────
+
   Widget _buildTodayView(
     List<TaskModel> todayTasks,
     List<TaskModel> overdueTasks,
     dynamic l10n,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Date Header
+          const SizedBox(height: 8),
           Text(
             _getTodayDate(),
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              color: GameTheme.neonCyan.withValues(alpha: 0.6),
+              letterSpacing: 1,
+              fontSize: 8,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
-            l10n.get('dash_today_tasks'), // Reusing string
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            'MISSION LOG',
+            style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 14),
           ),
           const SizedBox(height: 20),
 
-          // Overdue Tasks Section
+          // ── Overdue Tasks
           if (overdueTasks.isNotEmpty) ...[
-            const Text(
-              '⚠️ Overdue',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.red,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...overdueTasks.map(
-              (task) => _buildTaskCard(task, isOverdue: true),
+            _buildSectionHeader('⚠  OVERDUE', GameTheme.hpRed),
+            const SizedBox(height: 8),
+            ...overdueTasks.asMap().entries.map(
+              (e) => _buildTaskCard(e.value, isOverdue: true)
+                  .animate(delay: (e.key * 60).ms)
+                  .slideX(begin: -0.3, duration: 300.ms)
+                  .fadeIn(),
             ),
             const SizedBox(height: 20),
           ],
 
-          // Today's Tasks Section
+          // ── Today Tasks
           if (todayTasks.isNotEmpty) ...[
-            const Text(
-              'Today',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue,
-              ),
+            _buildSectionHeader('►  ACTIVE QUESTS', GameTheme.neonCyan),
+            const SizedBox(height: 8),
+            ...todayTasks.asMap().entries.map(
+              (e) => _buildTaskCard(e.value)
+                  .animate(delay: (e.key * 60).ms)
+                  .slideX(begin: -0.3, duration: 300.ms)
+                  .fadeIn(),
             ),
-            const SizedBox(height: 12),
-            ...todayTasks.map((task) => _buildTaskCard(task)),
           ],
 
-          // Empty State
+          // ── Empty State
           if (overdueTasks.isEmpty && todayTasks.isEmpty)
-            _buildEmptyTodayView(l10n),
+            _buildEmptyState(l10n),
         ],
       ),
     );
   }
 
-  // ALL TASKS VIEW
   Widget _buildAllTasksView(
     List<TaskModel> incomplete,
     List<TaskModel> completed,
@@ -217,171 +272,133 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   ) {
     return Column(
       children: [
-        // Sub Tab (To Do / Completed)
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            children: [
-              _buildSubTab(l10n.get('task_tab_active'), 0, incomplete.length),
-              _buildSubTab(l10n.get('task_tab_completed'), 1, completed.length),
-            ],
-          ),
+        _buildSubRpgTabs(
+          l10n.get('task_tab_active'),
+          incomplete.length,
+          l10n.get('task_tab_completed'),
+          completed.length,
         ),
-
-        // Tasks List
         Expanded(
           child: _selectedSubTab == 0
-              ? _buildTaskList(
+              ? _buildGameTaskList(
                   incomplete,
-                  isEmptyMessage: 'Belum ada tugas! Tekan tombol + di bawah.',
+                  emptyMessage: 'NO ACTIVE QUESTS\nPress [+] to add one',
                 )
-              : _buildTaskList(
+              : _buildGameTaskList(
                   completed,
-                  isEmptyMessage: 'Belum ada tugas yang selesai.',
+                  emptyMessage: 'NO COMPLETED QUESTS YET',
                 ),
         ),
       ],
     );
   }
 
-  Widget _buildSubTab(String label, int index, int count) {
-    final isSelected = _selectedSubTab == index;
+  Widget _buildCalendarView() => const CalendarView();
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedSubTab = index),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.blue : Colors.transparent,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Center(
-            child: Text(
-              count > 0 ? '$label ($count)' : label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // CALENDAR VIEW (Placeholder)
-  Widget _buildCalendarView(dynamic l10n) {
-    return const CalendarView();
-  }
-
-  Widget _buildTaskList(
+  Widget _buildGameTaskList(
     List<TaskModel> tasks, {
-    required String isEmptyMessage,
+    required String emptyMessage,
   }) {
     if (tasks.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.task_alt, size: 64, color: Colors.grey[700]),
+            Icon(Icons.inbox, size: 64, color: Colors.grey[800]),
             const SizedBox(height: 16),
-            Text(
-              isEmptyMessage,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
+            ...emptyMessage
+                .split('\n')
+                .map(
+                  (line) => Text(
+                    line,
+                    style: GameTheme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[700],
+                      fontSize: 10,
+                      letterSpacing: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
           ],
         ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
-        final task = tasks[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _buildTaskCard(task),
-        );
+        return _buildTaskCard(tasks[index])
+            .animate(delay: (index * 50).ms)
+            .slideX(begin: -0.2, duration: 250.ms)
+            .fadeIn();
       },
     );
   }
 
+  // ── Task Card ────────────────────────────────────────────────────
+
   Widget _buildTaskCard(TaskModel task, {bool isOverdue = false}) {
+    final borderColor = isOverdue
+        ? GameTheme.hpRed
+        : task.isCompleted
+        ? GameTheme.staminaGreen
+        : GameTheme.neonCyan.withValues(alpha: 0.3);
+
+    final glowColor = isOverdue
+        ? GameTheme.hpRed
+        : task.isCompleted
+        ? GameTheme.staminaGreen
+        : GameTheme.neonCyan;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      key: ValueKey(task.id),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isOverdue
-              ? Colors.red.withValues(alpha: 0.3)
-              : task.isCompleted
-              ? Colors.green.withValues(alpha: 0.3)
-              : Colors.white.withValues(alpha: 0.05),
-        ),
+        color: GameTheme.surface,
+        border: Border.all(color: borderColor, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.1),
+            blurRadius: 8,
+            spreadRadius: 1,
+          ),
+        ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Checkbox
-          GestureDetector(
-            onTap: task.isCompleted ? null : () => _completeTask(task.id),
-            child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: task.isCompleted
-                    ? Colors.green.withValues(alpha: 0.2)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: task.isCompleted
-                      ? Colors.green
-                      : isOverdue
-                      ? Colors.red
-                      : Colors.grey.withValues(alpha: 0.5),
-                  width: task.isCompleted ? 2 : 1,
-                ),
-              ),
-              child: task.isCompleted
-                  ? const Icon(Icons.check, color: Colors.green, size: 18)
-                  : null,
-            ),
-          ),
-          const SizedBox(width: 16),
+          // ── Action Button (Checkbox) ──────────────
+          _buildActionButton(task, isOverdue),
+          const SizedBox(width: 14),
 
-          // Task Content
+          // ── Task Body ─────────────────────────────
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title
                 Text(
                   task.title,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: task.isCompleted ? Colors.grey[600] : Colors.white,
                     decoration: task.isCompleted
                         ? TextDecoration.lineThrough
                         : null,
+                    decorationColor: Colors.grey[600],
                   ),
                 ),
-
-                // Description (if any)
                 if (task.description.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     task.description,
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[400],
+                      fontFamily: 'Inter',
+                      fontSize: 12,
+                      color: Colors.grey[500],
                       decoration: task.isCompleted
                           ? TextDecoration.lineThrough
                           : null,
@@ -390,208 +407,200 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-
                 const SizedBox(height: 8),
-
-                // Metadata Row
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    // Due Date Badge
-                    if (task.dueDate != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getDueDateColor(task).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isOverdue ? Icons.warning : Icons.access_time,
-                              size: 12,
-                              color: _getDueDateColor(task),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              isOverdue
-                                  ? 'Overdue'
-                                  : _formatDueTime(task.dueDate!),
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: _getDueDateColor(task),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    // Energy Level Badge
-                    if (task.energyLevel != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getEnergyColor(
-                            task.energyLevel!,
-                          ).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _getEnergyIcon(task.energyLevel!),
-                              size: 12,
-                              color: _getEnergyColor(task.energyLevel!),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              task.energyLevel!.displayName,
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: _getEnergyColor(task.energyLevel!),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    // Difficulty Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getDifficultyColor(
-                          task.difficulty,
-                        ).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        task.difficulty.displayName,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: _getDifficultyColor(task.difficulty),
-                        ),
-                      ),
-                    ),
-
-                    // Stat Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatColor(
-                          task.statType,
-                        ).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _getStatIcon(task.statType),
-                            size: 10,
-                            color: _getStatColor(task.statType),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '+${task.difficulty.xpValue} XP',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: _getStatColor(task.statType),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Time Left (if not completed and not overdue)
-                if (!task.isCompleted && !isOverdue && task.dueDate != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      task.timeLeftText,
-                      style: TextStyle(
-                        // Perbaiki null safety dengan mengecek timeLeft
-                        fontSize: 11,
-                        color:
-                            (task.timeLeft != null &&
-                                task.timeLeft!.inHours < 6)
-                            ? Colors.orange
-                            : Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                _buildTaskBadges(task, isOverdue),
               ],
             ),
           ),
 
-          // Delete Button (for completed tasks)
-          if (task.isCompleted)
-            IconButton(
-              icon: const Icon(
-                Icons.delete_outline,
-                color: Colors.red,
-                size: 20,
+          // ── Right side: XP + delete ───────────────
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: GameTheme.goldYellow.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: GameTheme.goldYellow.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Text(
+                  '+${task.difficulty.xpValue} XP',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: GameTheme.goldYellow,
+                  ),
+                ),
               ),
-              onPressed: () => _deleteTask(task.id),
-            ),
+              if (task.isCompleted) ...[
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () => _deleteTask(task.id),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Colors.grey[700],
+                    size: 18,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyTodayView(dynamic l10n) {
+  Widget _buildActionButton(TaskModel task, bool isOverdue) {
+    final color = isOverdue
+        ? GameTheme.hpRed
+        : task.isCompleted
+        ? GameTheme.staminaGreen
+        : GameTheme.neonCyan;
+
+    return Builder(
+      builder: (ctx) {
+        return GestureDetector(
+          onTap: task.isCompleted ? null : () => _completeTask(task, ctx),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: task.isCompleted
+                  ? color.withValues(alpha: 0.2)
+                  : Colors.transparent,
+              border: Border.all(
+                color: color,
+                width: task.isCompleted ? 2 : 1.5,
+              ),
+              boxShadow: task.isCompleted
+                  ? [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: task.isCompleted
+                ? Icon(Icons.check, color: color, size: 18)
+                : null,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTaskBadges(TaskModel task, bool isOverdue) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      children: [
+        if (task.dueDate != null)
+          _badge(
+            isOverdue ? '⚠ OVERDUE' : _formatDueTime(task.dueDate!),
+            _getDueDateColor(task),
+          ),
+        if (task.energyLevel != null)
+          _badge(
+            task.energyLevel!.displayName,
+            _getEnergyColor(task.energyLevel!),
+          ),
+        _badge(
+          task.difficulty.displayName,
+          _getDifficultyColor(task.difficulty),
+        ),
+        _badge(task.statType.name.toUpperCase(), _getStatColor(task.statType)),
+      ],
+    );
+  }
+
+  Widget _badge(String label, Color color) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 9,
+          color: color,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, Color color) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: GameTheme.textTheme.bodySmall?.copyWith(
+            color: color,
+            fontSize: 9,
+            letterSpacing: 2,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(height: 1, color: color.withValues(alpha: 0.3)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState(dynamic l10n) {
+    return Container(
+      margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(20),
+        color: GameTheme.surface,
+        border: Border.all(color: Colors.white12, width: 1.5),
       ),
       child: Column(
         children: [
-          Icon(Icons.beach_access, size: 64, color: Colors.grey[700]),
+          Icon(Icons.beach_access, size: 56, color: Colors.grey[800]),
           const SizedBox(height: 16),
           Text(
-            l10n.get('dash_empty_tasks').split('\n')[0],
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+            'NO MISSIONS TODAY',
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.white70,
+              fontSize: 12,
+              letterSpacing: 2,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            l10n.get('dash_empty_tasks').split('\n')[1],
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
+            'REST, OR START A NEW QUEST',
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[600],
+              fontSize: 8,
+              letterSpacing: 1.5,
+            ),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _showAddTaskSheet,
-            icon: const Icon(Icons.add),
-            label: Text(l10n.get('task_add_new')),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
+          const SizedBox(height: 20),
+          GestureDetector(
+            onTap: _showAddTaskSheet,
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+              decoration: BoxDecoration(
+                color: GameTheme.goldYellow.withValues(alpha: 0.1),
+                border: Border.all(color: GameTheme.goldYellow, width: 2),
+              ),
+              child: Text(
+                '[ + NEW QUEST ]',
+                style: GameTheme.textTheme.bodySmall?.copyWith(
+                  color: GameTheme.goldYellow,
+                  fontSize: 10,
+                  letterSpacing: 2,
+                ),
               ),
             ),
           ),
@@ -600,23 +609,66 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     );
   }
 
-  Future<void> _completeTask(String taskId) async {
-    try {
-      await ref.read(taskProvider.notifier).completeTask(taskId);
+  Widget _buildGameFAB(dynamic l10n) {
+    return GestureDetector(
+      onTap: _showAddTaskSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: GameTheme.goldYellow,
+          boxShadow: [
+            BoxShadow(
+              color: GameTheme.goldYellow.withValues(alpha: 0.5),
+              blurRadius: 16,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.add, color: Colors.black, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'NEW QUEST',
+              style: GameTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.black,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Task completed! +XP'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 1),
-          ),
-        );
-      }
+  // ── Actions ──────────────────────────────────────────────────────
+
+  Future<void> _completeTask(TaskModel task, BuildContext cardCtx) async {
+    // Show floating +XP text
+    final renderBox = cardCtx.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      XpFloatingText.show(
+        context,
+        renderBox: renderBox,
+        xp: task.difficulty.xpValue,
+      );
+    }
+
+    // Play SFX
+    SfxService.instance.playTaskComplete();
+
+    try {
+      await ref.read(taskProvider.notifier).completeTask(task.id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: GameTheme.hpRed,
+          ),
         );
       }
     }
@@ -625,20 +677,13 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   Future<void> _deleteTask(String taskId) async {
     try {
       await ref.read(taskProvider.notifier).deleteTask(taskId);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Task deleted'),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 1),
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: GameTheme.hpRed,
+          ),
         );
       }
     }
@@ -653,118 +698,86 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     );
   }
 
-  // Helper Methods
+  // ── Helpers ──────────────────────────────────────────────────────
+
   String _getTodayDate() {
     final now = DateTime.now();
-    final days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    final days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
     ];
-
-    return '${days[now.weekday % 7]}, ${now.day} ${months[now.month - 1]} ${now.year}';
+    return '${days[now.weekday % 7]}  ${now.day} ${months[now.month - 1]} ${now.year}';
   }
 
   String _formatDueTime(DateTime dueDate) {
     final now = DateTime.now();
-
     if (dueDate.year == now.year &&
         dueDate.month == now.month &&
         dueDate.day == now.day) {
-      return 'Today ${dueDate.hour}:${dueDate.minute.toString().padLeft(2, '0')}';
+      return 'TODAY ${dueDate.hour}:${dueDate.minute.toString().padLeft(2, '0')}';
     }
-
     final tomorrow = now.add(const Duration(days: 1));
     if (dueDate.year == tomorrow.year &&
         dueDate.month == tomorrow.month &&
         dueDate.day == tomorrow.day) {
-      return 'Tomorrow ${dueDate.hour}:${dueDate.minute.toString().padLeft(2, '0')}';
+      return 'TOMORROW ${dueDate.hour}:${dueDate.minute.toString().padLeft(2, '0')}';
     }
-
     return '${dueDate.day}/${dueDate.month} ${dueDate.hour}:${dueDate.minute.toString().padLeft(2, '0')}';
   }
 
   Color _getDueDateColor(TaskModel task) {
-    if (task.isCompleted) return Colors.green;
-    if (task.isOverdue) return Colors.red;
-
+    if (task.isCompleted) return GameTheme.staminaGreen;
+    if (task.isOverdue) return GameTheme.hpRed;
     final timeLeft = task.timeLeft;
     if (timeLeft == null) return Colors.grey;
-
-    if (timeLeft.inHours < 6) {
-      return Colors.orange;
-    } else if (timeLeft.inHours < 24) {
-      return Colors.yellow;
-    }
-    return Colors.grey;
+    if (timeLeft.inHours < 6) return Colors.orange;
+    if (timeLeft.inHours < 24) return GameTheme.goldYellow;
+    return Colors.grey[600]!;
   }
 
   Color _getEnergyColor(EnergyLevel level) {
     switch (level) {
       case EnergyLevel.low:
-        return Colors.green;
+        return GameTheme.staminaGreen;
       case EnergyLevel.medium:
-        return Colors.orange;
+        return GameTheme.goldYellow;
       case EnergyLevel.high:
-        return Colors.red;
-    }
-  }
-
-  IconData _getEnergyIcon(EnergyLevel level) {
-    switch (level) {
-      case EnergyLevel.low:
-        return Icons.battery_1_bar;
-      case EnergyLevel.medium:
-        return Icons.battery_3_bar;
-      case EnergyLevel.high:
-        return Icons.battery_full;
+        return GameTheme.hpRed;
     }
   }
 
   Color _getStatColor(StatType stat) {
     switch (stat) {
       case StatType.intelligence:
-        return Colors.blue;
+        return GameTheme.manaBlue;
       case StatType.discipline:
-        return Colors.green;
+        return GameTheme.staminaGreen;
       case StatType.health:
-        return Colors.red;
+        return GameTheme.hpRed;
       case StatType.wealth:
-        return Colors.amber;
-    }
-  }
-
-  IconData _getStatIcon(StatType stat) {
-    switch (stat) {
-      case StatType.intelligence:
-        return Icons.school;
-      case StatType.discipline:
-        return Icons.fitness_center;
-      case StatType.health:
-        return Icons.favorite;
-      case StatType.wealth:
-        return Icons.attach_money;
+        return GameTheme.goldYellow;
     }
   }
 
   Color _getDifficultyColor(TaskDifficulty difficulty) {
     switch (difficulty) {
       case TaskDifficulty.easy:
-        return Colors.green;
+        return GameTheme.staminaGreen;
       case TaskDifficulty.medium:
-        return Colors.orange;
+        return GameTheme.goldYellow;
       case TaskDifficulty.hard:
-        return Colors.red;
+        return GameTheme.hpRed;
     }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/note_provider.dart';
 import '../../core/models/note_model.dart';
+import '../../core/theme/game_theme.dart';
 import 'widgets/add_note_bottom_sheet.dart';
 import 'widgets/note_detail_screen.dart';
 
@@ -28,40 +30,55 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     final filteredNotes = _filterNotes(notes);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: GameTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: GameTheme.background,
         elevation: 0,
-        title: const Text(
-          'Notes',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+        title: Text(
+          'NOTES',
+          style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 16),
         ),
       ),
       body: Column(
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                color: GameTheme.surface,
+                border: Border.all(
+                  color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                  width: 1.5,
+                ),
               ),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  color: Colors.white,
+                  fontSize: 13,
+                ),
                 decoration: InputDecoration(
-                  hintText: 'Search notes...',
-                  hintStyle: TextStyle(color: Colors.grey[600]),
-                  prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                  hintText: 'SEARCH LOGS...',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Colors.grey[700],
+                    fontSize: 12,
+                    letterSpacing: 1,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: GameTheme.neonCyan.withValues(alpha: 0.5),
+                    size: 20,
+                  ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: Icon(Icons.clear, color: Colors.grey[500]),
+                          icon: Icon(
+                            Icons.clear,
+                            color: Colors.grey[600],
+                            size: 18,
+                          ),
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
@@ -87,10 +104,25 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddNoteSheet,
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: GameTheme.goldYellow.withValues(alpha: 0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: _showAddNoteSheet,
+          backgroundColor: GameTheme.goldYellow,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: const BorderSide(color: Colors.black87, width: 2),
+          ),
+          child: const Icon(Icons.add, color: Colors.black, size: 24),
+        ),
       ),
     );
   }
@@ -109,20 +141,35 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.note_alt_outlined, size: 80, color: Colors.grey[700]),
+          Icon(
+            Icons.note_alt_outlined,
+            size: 56,
+            color: GameTheme.neonCyan.withValues(alpha: 0.3),
+            shadows: [
+              Shadow(
+                color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                blurRadius: 12,
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Text(
-            'No notes yet',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+            'NO LOGS YET',
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[700],
+              fontSize: 10,
+              letterSpacing: 2,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap + to create your first note',
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            'TAP + TO CREATE YOUR FIRST LOG',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 10,
+              color: Colors.grey[700],
+              letterSpacing: 0.5,
+            ),
           ),
         ],
       ),
@@ -131,80 +178,123 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
 
   Widget _buildNotesGrid(List<NoteModel> notes) {
     return GridView.builder(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.9,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        childAspectRatio: 0.85,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
       itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes[index];
-        return _buildNoteCard(note);
+        return _buildNoteCard(note, index);
       },
     );
   }
 
-  Widget _buildNoteCard(NoteModel note) {
+  Widget _buildNoteCard(NoteModel note, int index) {
     final date =
         '${note.updatedAt.day}/${note.updatedAt.month}/${note.updatedAt.year}';
 
     return GestureDetector(
       onTap: () => _openNoteDetail(note),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[900],
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title and date
-            Text(
-              note.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-            Text(date, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-            const Spacer(),
-
-            // Preview content
-            Text(
-              note.content,
-              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 12),
-
-            // Delete button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: Colors.red[400],
-                    size: 18,
+      child:
+          Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: GameTheme.surface,
+                  border: Border.all(
+                    color: GameTheme.neonCyan.withValues(alpha: 0.15),
+                    width: 1.5,
                   ),
-                  onPressed: () => _deleteNote(note.id),
-                  constraints: const BoxConstraints(),
-                  padding: EdgeInsets.zero,
+                  boxShadow: [
+                    BoxShadow(
+                      color: GameTheme.neonCyan.withValues(alpha: 0.06),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      note.title.toUpperCase(),
+                      style: GameTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 9,
+                        letterSpacing: 0.5,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: GameTheme.neonCyan.withValues(alpha: 0.08),
+                        border: Border.all(
+                          color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Text(
+                        date,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 8,
+                          color: GameTheme.neonCyan.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+
+                    // Preview content
+                    Text(
+                      note.content,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 11,
+                        color: Colors.grey[500],
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Delete button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () => _deleteNote(note.id),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: GameTheme.hpRed.withValues(alpha: 0.1),
+                              border: Border.all(
+                                color: GameTheme.hpRed.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: GameTheme.hpRed.withValues(alpha: 0.7),
+                              size: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )
+              .animate(delay: (index * 60).ms)
+              .fadeIn(duration: 300.ms)
+              .scale(begin: const Offset(0.95, 0.95)),
     );
   }
 
@@ -228,21 +318,48 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Delete Note', style: TextStyle(color: Colors.white)),
+        backgroundColor: GameTheme.surface,
+        shape: const RoundedRectangleBorder(
+          side: BorderSide(color: GameTheme.hpRed, width: 1.5),
+        ),
+        title: Text(
+          'DELETE LOG',
+          style: GameTheme.textTheme.bodySmall?.copyWith(
+            color: GameTheme.hpRed,
+            fontSize: 10,
+            letterSpacing: 2,
+          ),
+        ),
         content: const Text(
-          'Are you sure you want to delete this note?',
-          style: TextStyle(color: Colors.grey),
+          'Are you sure you want to delete this log?',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            color: Colors.white70,
+            fontSize: 13,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(
+              'CANCEL',
+              style: GameTheme.textTheme.bodySmall?.copyWith(
+                fontSize: 8,
+                color: Colors.grey[500],
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: GameTheme.hpRed),
+            child: Text(
+              'DELETE',
+              style: GameTheme.textTheme.bodySmall?.copyWith(
+                fontSize: 8,
+                color: GameTheme.hpRed,
+                letterSpacing: 1,
+              ),
+            ),
           ),
         ],
       ),
@@ -253,17 +370,27 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         await ref.read(notesProvider.notifier).deleteNote(noteId);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note deleted'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 1),
+            SnackBar(
+              backgroundColor: GameTheme.surface,
+              content: Text(
+                'LOG DELETED',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: GameTheme.goldYellow,
+                  fontSize: 12,
+                ),
+              ),
+              duration: const Duration(seconds: 1),
             ),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: GameTheme.hpRed,
+            ),
           );
         }
       }

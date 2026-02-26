@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/note_model.dart';
 import '../../../core/providers/note_provider.dart';
+import '../../../core/theme/game_theme.dart';
 
 class NoteDetailScreen extends ConsumerStatefulWidget {
   final NoteModel note;
@@ -37,23 +38,34 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
         '${widget.note.updatedAt.day}/${widget.note.updatedAt.month}/${widget.note.updatedAt.year} ${widget.note.updatedAt.hour}:${widget.note.updatedAt.minute.toString().padLeft(2, '0')}';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: GameTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: GameTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Icons.arrow_back,
+            color: GameTheme.neonCyan.withValues(alpha: 0.7),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           if (!_isEditing)
             IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
+              icon: Icon(
+                Icons.edit,
+                color: GameTheme.manaBlue,
+                shadows: [Shadow(color: GameTheme.manaBlue, blurRadius: 8)],
+              ),
               onPressed: () => setState(() => _isEditing = true),
             ),
           if (_isEditing) ...[
             IconButton(
-              icon: const Icon(Icons.close, color: Colors.red),
+              icon: Icon(
+                Icons.close,
+                color: GameTheme.hpRed,
+                shadows: [Shadow(color: GameTheme.hpRed, blurRadius: 8)],
+              ),
               onPressed: () {
                 setState(() => _isEditing = false);
                 _titleController.text = widget.note.title;
@@ -61,7 +73,11 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.check, color: Colors.green),
+              icon: Icon(
+                Icons.check,
+                color: GameTheme.staminaGreen,
+                shadows: [Shadow(color: GameTheme.staminaGreen, blurRadius: 8)],
+              ),
               onPressed: _updateNote,
             ),
           ],
@@ -73,52 +89,83 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Date
-            Text(date, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: GameTheme.neonCyan.withValues(alpha: 0.08),
+                border: Border.all(
+                  color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Text(
+                date,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 10,
+                  color: GameTheme.neonCyan.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
 
             // Title
             _isEditing
                 ? TextFormField(
                     controller: _titleController,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    style: GameTheme.neonTextStyle(
+                      GameTheme.neonCyan,
+                      fontSize: 14,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Title',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      hintStyle: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.grey[700],
+                      ),
                       border: InputBorder.none,
                     ),
                   )
                 : Text(
-                    widget.note.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    widget.note.title.toUpperCase(),
+                    style: GameTheme.neonTextStyle(
+                      GameTheme.neonCyan,
+                      fontSize: 14,
                     ),
                   ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
+            Container(
+              height: 1,
+              color: GameTheme.neonCyan.withValues(alpha: 0.15),
+            ),
+            const SizedBox(height: 20),
 
             // Content
             _isEditing
                 ? TextFormField(
                     controller: _contentController,
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      color: Colors.white,
+                      height: 1.6,
+                    ),
                     maxLines: null,
                     decoration: InputDecoration(
-                      hintText: 'Write your note...',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      hintText: 'Write your log...',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.grey[700],
+                      ),
                       border: InputBorder.none,
                     ),
                   )
                 : Text(
                     widget.note.content,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontSize: 14,
                       color: Colors.grey[300],
-                      height: 1.5,
+                      height: 1.6,
                     ),
                   ),
           ],
@@ -130,9 +177,16 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
   Future<void> _updateNote() async {
     if (_titleController.text.isEmpty || _contentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Title and content cannot be empty'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          backgroundColor: GameTheme.surface,
+          content: Text(
+            'TITLE AND CONTENT CANNOT BE EMPTY',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              color: GameTheme.hpRed,
+              fontSize: 11,
+            ),
+          ),
         ),
       );
       return;
@@ -150,17 +204,27 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Note updated'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 1),
+          SnackBar(
+            backgroundColor: GameTheme.surface,
+            content: Text(
+              'LOG UPDATED',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: GameTheme.staminaGreen,
+                fontSize: 12,
+              ),
+            ),
+            duration: const Duration(seconds: 1),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: GameTheme.hpRed,
+          ),
         );
       }
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../core/theme/game_theme.dart';
 
 class ProductivityHeatmap extends ConsumerWidget {
   final Map<DateTime, int> heatmapData;
@@ -15,10 +16,8 @@ class ProductivityHeatmap extends ConsumerWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // Calculate start date so that the grid aligns nicely (ending on today's weekday)
-    final startDate = today.subtract(
-      const Duration(days: 89),
-    ); // 90 days including today
+    // Calculate start date so that the grid aligns nicely
+    final startDate = today.subtract(const Duration(days: 89));
 
     // Create list of dates
     List<DateTime> dates = [];
@@ -33,10 +32,19 @@ class ProductivityHeatmap extends ConsumerWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(20),
+        color: GameTheme.surface,
+        border: Border.all(
+          color: GameTheme.staminaGreen.withValues(alpha: 0.25),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: GameTheme.staminaGreen.withValues(alpha: 0.08),
+            blurRadius: 6,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,18 +55,22 @@ class ProductivityHeatmap extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  l10n.get('stats_heatmap'),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  l10n.get('stats_heatmap').toUpperCase(),
+                  style: GameTheme.textTheme.bodySmall?.copyWith(
+                    fontSize: 9,
+                    color: GameTheme.staminaGreen,
+                    letterSpacing: 2,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 l10n.get('stats_heatmap_desc'),
-                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 10,
+                  color: Colors.grey[500],
+                ),
               ),
             ],
           ),
@@ -66,11 +78,11 @@ class ProductivityHeatmap extends ConsumerWidget {
           // Scrollable Heatmap horizontally
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            reverse: true, // Start scrolled to the right (most recent)
+            reverse: true,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Weekday labels (optional, simplified here)
+                // Weekday labels
                 Padding(
                   padding: const EdgeInsets.only(top: 20, right: 8),
                   child: Column(
@@ -78,17 +90,29 @@ class ProductivityHeatmap extends ConsumerWidget {
                     children: [
                       Text(
                         l10n.get('cal_mon'),
-                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 9,
+                          color: Colors.grey[600],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         l10n.get('cal_wed'),
-                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 9,
+                          color: Colors.grey[600],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         l10n.get('cal_fri'),
-                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 9,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -104,7 +128,11 @@ class ProductivityHeatmap extends ConsumerWidget {
             children: [
               Text(
                 l10n.get('heatmap_less'),
-                style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 9,
+                  color: Colors.grey[600],
+                ),
               ),
               const SizedBox(width: 4),
               _buildLegendBox(0),
@@ -119,7 +147,11 @@ class ProductivityHeatmap extends ConsumerWidget {
               const SizedBox(width: 4),
               Text(
                 l10n.get('heatmap_more'),
-                style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 9,
+                  color: Colors.grey[600],
+                ),
               ),
             ],
           ),
@@ -129,18 +161,13 @@ class ProductivityHeatmap extends ConsumerWidget {
   }
 
   Widget _buildGrid(List<DateTime> dates, int maxTasks) {
-    // A grid representing weeks as columns and days as rows.
-    // In Flutter, a Wrap or customized Table works well for this.
-
-    // Split dates into weeks (roughly 13-14 columns)
     List<List<DateTime>> columns = [];
     List<DateTime> currentColumn = [];
 
-    // To align correctly, we need to know what day of week the first date is
-    int paddingDays = dates.first.weekday - 1; // 1 = Monday, padding is 0.
+    int paddingDays = dates.first.weekday - 1;
 
     for (int i = 0; i < paddingDays; i++) {
-      currentColumn.add(DateTime(1970)); // Dummy empty date
+      currentColumn.add(DateTime(1970));
     }
 
     for (var date in dates) {
@@ -152,7 +179,6 @@ class ProductivityHeatmap extends ConsumerWidget {
     }
 
     if (currentColumn.isNotEmpty) {
-      // pad the rest of the last column
       while (currentColumn.length < 7) {
         currentColumn.add(DateTime(1970));
       }
@@ -191,19 +217,32 @@ class ProductivityHeatmap extends ConsumerWidget {
 
   Widget _buildCell(int count, int maxTasks) {
     Color color;
+    List<BoxShadow>? glow;
+
     if (count == 0) {
-      color = const Color(0xFF2D2D2D);
+      color = Colors.white.withValues(alpha: 0.04);
     } else {
-      // Determine intensity (1 to 4 scaling similar to Github)
       double ratio = count / maxTasks;
       if (ratio <= 0.25) {
-        color = Colors.green[800]!;
+        color = GameTheme.neonCyan.withValues(alpha: 0.2);
       } else if (ratio <= 0.5) {
-        color = Colors.green[600]!;
+        color = GameTheme.neonCyan.withValues(alpha: 0.4);
       } else if (ratio <= 0.75) {
-        color = Colors.green[400]!;
+        color = GameTheme.neonCyan.withValues(alpha: 0.65);
+        glow = [
+          BoxShadow(
+            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+            blurRadius: 3,
+          ),
+        ];
       } else {
-        color = Colors.greenAccent[400]!;
+        color = GameTheme.neonCyan;
+        glow = [
+          BoxShadow(
+            color: GameTheme.neonCyan.withValues(alpha: 0.4),
+            blurRadius: 4,
+          ),
+        ];
       }
     }
 
@@ -212,7 +251,13 @@ class ProductivityHeatmap extends ConsumerWidget {
       height: 14,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: count > 0
+              ? GameTheme.neonCyan.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.03),
+          width: 0.5,
+        ),
+        boxShadow: glow,
       ),
     );
   }
@@ -221,29 +266,32 @@ class ProductivityHeatmap extends ConsumerWidget {
     Color color;
     switch (intensity) {
       case 0:
-        color = const Color(0xFF2D2D2D);
+        color = Colors.white.withValues(alpha: 0.04);
         break;
       case 1:
-        color = Colors.green[800]!;
+        color = GameTheme.neonCyan.withValues(alpha: 0.2);
         break;
       case 2:
-        color = Colors.green[600]!;
+        color = GameTheme.neonCyan.withValues(alpha: 0.4);
         break;
       case 3:
-        color = Colors.green[400]!;
+        color = GameTheme.neonCyan.withValues(alpha: 0.65);
         break;
       case 4:
-        color = Colors.greenAccent[400]!;
+        color = GameTheme.neonCyan;
         break;
       default:
-        color = const Color(0xFF2D2D2D);
+        color = Colors.white.withValues(alpha: 0.04);
     }
     return Container(
       width: 10,
       height: 10,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(2),
+        border: Border.all(
+          color: GameTheme.neonCyan.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
       ),
     );
   }

@@ -39,7 +39,7 @@ class GamificationEngine {
 
         // Claim rewards immediately only if this specific action completed it
         if (justCompleted) {
-          await userNotifier.addXp(quest.rewardXp);
+          await userNotifier.addXp(quest.xpReward);
         }
       }
     }

@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/tasks/tasks_screen.dart';
 import 'features/stats/stats_screen.dart';
+import 'features/notes/notes_screen.dart';
 import 'features/gamification/gamification_screen.dart';
 import 'features/settings/settings_screen.dart';
-import 'core/providers/locale_provider.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
@@ -15,6 +15,10 @@ import 'core/models/subtask_model.dart';
 import 'core/models/achievement_model.dart';
 import 'core/models/quest_model.dart';
 import 'core/models/skill_node_model.dart';
+import 'core/theme/game_theme.dart';
+import 'core/providers/locale_provider.dart';
+import 'core/providers/user_provider.dart';
+import 'core/widgets/level_up_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,20 +36,20 @@ void main() async {
   Hive.registerAdapter(QuadrantTypeAdapter());
   Hive.registerAdapter(TagModelAdapter());
   Hive.registerAdapter(SubtaskModelAdapter());
-
-  // New RPG Gamification Adapters
   Hive.registerAdapter(AchievementModelAdapter());
   Hive.registerAdapter(QuestModelAdapter());
-  Hive.registerAdapter(QuestTypeAdapter());
   Hive.registerAdapter(SkillNodeModelAdapter());
+  Hive.registerAdapter(AchievementCategoryAdapter());
+  Hive.registerAdapter(AchievementRarityAdapter());
+  Hive.registerAdapter(QuestTypeAdapter());
+  Hive.registerAdapter(QuestDifficultyAdapter());
+  Hive.registerAdapter(SkillTypeAdapter());
 
   await Hive.openBox('settings');
   await Hive.openBox<UserModel>('user_data');
   await Hive.openBox<TaskModel>('tasks');
   await Hive.openBox<NoteModel>('notes');
   await Hive.openBox<TagModel>('tags');
-
-  // New RPG Gamification Boxes
   await Hive.openBox<AchievementModel>('achievements');
   await Hive.openBox<QuestModel>('quests');
   await Hive.openBox<SkillNodeModel>('skills');
@@ -61,14 +65,7 @@ class LevelUpApp extends StatelessWidget {
     return MaterialApp(
       title: 'LevelUp',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        primaryColor: Colors.blue,
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.blue,
-          secondary: Colors.blueAccent,
-        ),
-      ),
+      theme: GameTheme.darkTheme,
       home: const MainNavigationScreen(),
     );
   }
@@ -85,30 +82,47 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _selectedIndex = 0;
 
-  // Convert to getter to avoid Hot Reload RangeError issues when adding new screens
-  List<Widget> get _screens => [
-    const DashboardScreen(),
-    const TasksScreen(),
-    const GamificationScreen(), // The Hub
-    const StatsScreen(),
-    const SettingsScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Listen to level changes
+    ref.listen(userProvider, (previous, current) {
+      if (previous != null &&
+          current != null &&
+          current.level > previous.level) {
+        // Level up detected!
+        LevelUpOverlay.show(context, newLevel: current.level);
+      }
+    });
+
     final l10n = ref.watch(l10nProvider);
 
+    final screens = [
+      const DashboardScreen(),
+      const TasksScreen(),
+      const StatsScreen(),
+      const GamificationScreen(),
+      const NotesScreen(),
+      const SettingsScreen(),
+    ];
+
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          color: GameTheme.surface,
+          border: const Border(
+            top: BorderSide(color: GameTheme.neonCyan, width: 2),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: GameTheme.neonCyan.withValues(alpha: 0.2),
               blurRadius: 10,
-              offset: const Offset(0, -5),
+              spreadRadius: 2,
             ),
           ],
         ),
@@ -118,33 +132,42 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey[600],
+          selectedItemColor: GameTheme.neonCyan,
+          unselectedItemColor: Colors.grey[700],
+          selectedLabelStyle: const TextStyle(
+            fontFamily: 'PressStart2P',
+            fontSize: 8,
+            letterSpacing: 1,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontFamily: 'PressStart2P',
+            fontSize: 8,
+            letterSpacing: 1,
+          ),
           items: [
             BottomNavigationBarItem(
-              icon: const Icon(Icons.dashboard_outlined),
-              activeIcon: const Icon(Icons.dashboard),
-              label: l10n.get('nav_dashboard'),
+              icon: Icon(Icons.dashboard, size: 20),
+              label: l10n.get('nav_dashboard').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.task_outlined),
-              activeIcon: const Icon(Icons.task),
-              label: l10n.get('nav_tasks'),
+              icon: Icon(Icons.task, size: 20),
+              label: l10n.get('nav_tasks').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.emoji_events_outlined),
-              activeIcon: const Icon(Icons.emoji_events),
-              label: l10n.get('nav_rpg'),
+              icon: Icon(Icons.bar_chart, size: 20),
+              label: l10n.get('nav_stats').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.bar_chart_outlined),
-              activeIcon: const Icon(Icons.bar_chart),
-              label: l10n.get('nav_stats'),
+              icon: Icon(Icons.auto_awesome, size: 20),
+              label: l10n.get('nav_rpg').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.settings_outlined),
-              activeIcon: const Icon(Icons.settings),
-              label: l10n.get('settings_title'),
+              icon: Icon(Icons.note, size: 20),
+              label: l10n.get('nav_notes').toUpperCase(),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings, size: 20),
+              label: l10n.get('settings_title').toUpperCase(),
             ),
           ],
         ),

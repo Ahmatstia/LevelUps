@@ -1,10 +1,37 @@
 import 'package:hive/hive.dart';
-import 'package:flutter/material.dart';
 
 part 'achievement_model.g.dart';
 
+@HiveType(typeId: 13)
+enum AchievementCategory {
+  @HiveField(0)
+  productivity,
+  @HiveField(1)
+  streak,
+  @HiveField(2)
+  tasks,
+  @HiveField(3)
+  stats,
+  @HiveField(4)
+  social,
+  @HiveField(5)
+  hidden,
+}
+
+@HiveType(typeId: 14)
+enum AchievementRarity {
+  @HiveField(0)
+  common,
+  @HiveField(1)
+  rare,
+  @HiveField(2)
+  epic,
+  @HiveField(3)
+  legendary,
+}
+
 @HiveType(typeId: 10)
-class AchievementModel extends HiveObject {
+class AchievementModel {
   @HiveField(0)
   final String id;
 
@@ -15,57 +42,52 @@ class AchievementModel extends HiveObject {
   final String description;
 
   @HiveField(3)
-  final String iconCodePoint;
+  final AchievementCategory category;
 
   @HiveField(4)
-  final String iconFontFamily;
+  final AchievementRarity rarity;
 
   @HiveField(5)
-  final int targetValue;
+  final String iconData;
 
   @HiveField(6)
-  int currentValue;
+  final int targetValue;
 
   @HiveField(7)
-  bool isUnlocked;
+  int currentValue;
 
   @HiveField(8)
+  bool isUnlocked;
+
+  @HiveField(9)
   DateTime? dateUnlocked;
+
+  @HiveField(10)
+  final int xpReward;
+
+  @HiveField(11)
+  final String? hiddenCondition;
 
   AchievementModel({
     required this.id,
     required this.title,
     required this.description,
+    required this.category,
+    required this.rarity,
+    required this.iconData,
     required this.targetValue,
-    this.currentValue = 0,
-    this.isUnlocked = false,
+    required this.currentValue,
+    required this.isUnlocked,
     this.dateUnlocked,
-    IconData icon = Icons.star,
-  }) : iconCodePoint = icon.codePoint.toString(),
-       iconFontFamily = icon.fontFamily ?? 'MaterialIcons';
+    required this.xpReward,
+    this.hiddenCondition,
+  });
 
-  IconData get iconData =>
-      IconData(int.parse(iconCodePoint), fontFamily: iconFontFamily);
+  double get progress => currentValue / targetValue;
 
-  void updateProgress(int newValue) {
-    if (isUnlocked) return;
-
-    currentValue = newValue;
-    if (currentValue >= targetValue) {
-      isUnlocked = true;
-      dateUnlocked = DateTime.now();
-      currentValue = targetValue;
-    }
-  }
-
-  void incrementProgress(int amount) {
-    if (isUnlocked) return;
-
-    currentValue += amount;
-    if (currentValue >= targetValue) {
-      isUnlocked = true;
-      dateUnlocked = DateTime.now();
-      currentValue = targetValue;
-    }
+  void unlock() {
+    isUnlocked = true;
+    dateUnlocked = DateTime.now();
+    currentValue = targetValue;
   }
 }

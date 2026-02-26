@@ -4,6 +4,7 @@ import '../../../core/models/task_model.dart';
 import '../../../core/providers/analytics_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../core/theme/game_theme.dart';
 
 class AdvancedCharts extends ConsumerWidget {
   final AnalyticsData analytics;
@@ -18,12 +19,12 @@ class AdvancedCharts extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLineChartCard(l10n),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(child: _buildBarChartCard(l10n)),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(child: _buildPieChartCard(l10n)),
           ],
         ),
@@ -33,34 +34,39 @@ class AdvancedCharts extends ConsumerWidget {
 
   Widget _buildLineChartCard(dynamic l10n) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blue.withValues(alpha: 0.15),
-            Colors.purple.withValues(alpha: 0.15),
-          ],
+        color: GameTheme.surface,
+        border: Border.all(
+          color: GameTheme.manaBlue.withValues(alpha: 0.25),
+          width: 1.5,
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        boxShadow: [
+          BoxShadow(
+            color: GameTheme.manaBlue.withValues(alpha: 0.08),
+            blurRadius: 6,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l10n.get('chart_xp'),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+            l10n.get('chart_xp').toString().toUpperCase(),
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              fontSize: 9,
+              color: GameTheme.manaBlue,
+              letterSpacing: 2,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             l10n.get('chart_xp_desc'),
-            style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 10,
+              color: Colors.grey[500],
+            ),
           ),
           const SizedBox(height: 24),
           SizedBox(
@@ -73,7 +79,7 @@ class AdvancedCharts extends ConsumerWidget {
                   horizontalInterval: 50,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withValues(alpha: 0.06),
                       strokeWidth: 1,
                     );
                   },
@@ -107,8 +113,9 @@ class AdvancedCharts extends ConsumerWidget {
                             child: Text(
                               days[value.toInt()],
                               style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize: 10,
+                                fontFamily: 'Inter',
+                                color: Colors.grey[600],
+                                fontSize: 9,
                               ),
                             ),
                           );
@@ -125,8 +132,9 @@ class AdvancedCharts extends ConsumerWidget {
                         return Text(
                           value.toInt().toString(),
                           style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 10,
+                            fontFamily: 'Inter',
+                            color: Colors.grey[600],
+                            fontSize: 9,
                           ),
                         );
                       },
@@ -152,17 +160,27 @@ class AdvancedCharts extends ConsumerWidget {
                     }),
                     isCurved: true,
                     gradient: const LinearGradient(
-                      colors: [Colors.blue, Colors.purple],
+                      colors: [GameTheme.neonCyan, GameTheme.neonPink],
                     ),
-                    barWidth: 4,
+                    barWidth: 3,
                     isStrokeCapRound: true,
-                    dotData: const FlDotData(show: true),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 3,
+                          color: GameTheme.neonCyan,
+                          strokeWidth: 1,
+                          strokeColor: Colors.white24,
+                        );
+                      },
+                    ),
                     belowBarData: BarAreaData(
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          Colors.blue.withValues(alpha: 0.3),
-                          Colors.purple.withValues(alpha: 0.0),
+                          GameTheme.neonCyan.withValues(alpha: 0.2),
+                          GameTheme.neonPink.withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -180,20 +198,29 @@ class AdvancedCharts extends ConsumerWidget {
 
   Widget _buildBarChartCard(dynamic l10n) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(20),
+        color: GameTheme.surface,
+        border: Border.all(
+          color: GameTheme.staminaGreen.withValues(alpha: 0.25),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: GameTheme.staminaGreen.withValues(alpha: 0.08),
+            blurRadius: 6,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l10n.get('chart_tasks'),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+            l10n.get('chart_tasks').toString().toUpperCase(),
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              fontSize: 8,
+              color: GameTheme.staminaGreen,
+              letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 16),
@@ -222,8 +249,9 @@ class AdvancedCharts extends ConsumerWidget {
                             child: Text(
                               days[value.toInt()],
                               style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize: 10,
+                                fontFamily: 'Inter',
+                                color: Colors.grey[600],
+                                fontSize: 9,
                               ),
                             ),
                           );
@@ -251,12 +279,12 @@ class AdvancedCharts extends ConsumerWidget {
                       BarChartRodData(
                         toY: analytics.weeklyTaskCompletions[index].toDouble(),
                         gradient: const LinearGradient(
-                          colors: [Colors.greenAccent, Colors.green],
+                          colors: [GameTheme.staminaGreen, GameTheme.neonCyan],
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                         ),
-                        width: 12,
-                        borderRadius: BorderRadius.circular(4),
+                        width: 10,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ],
                   );
@@ -274,20 +302,29 @@ class AdvancedCharts extends ConsumerWidget {
     final total = dist.values.fold(0, (sum, count) => sum + count);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(20),
+        color: GameTheme.surface,
+        border: Border.all(
+          color: GameTheme.neonPink.withValues(alpha: 0.25),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: GameTheme.neonPink.withValues(alpha: 0.08),
+            blurRadius: 6,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l10n.get('chart_quadrant'),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+            l10n.get('chart_quadrant').toString().toUpperCase(),
+            style: GameTheme.textTheme.bodySmall?.copyWith(
+              fontSize: 8,
+              color: GameTheme.neonPink,
+              letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 16),
@@ -297,36 +334,40 @@ class AdvancedCharts extends ConsumerWidget {
                 ? Center(
                     child: Text(
                       l10n.get('dash_empty_tasks').split('\n')[0],
-                      style: const TextStyle(color: Colors.grey),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 10,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   )
                 : PieChart(
                     PieChartData(
                       sectionsSpace: 2,
-                      centerSpaceRadius: 30,
+                      centerSpaceRadius: 28,
                       sections: [
                         _buildPieSection(
                           dist[QuadrantType.doFirst]!,
                           total,
-                          Colors.red,
+                          GameTheme.hpRed,
                           'Q1',
                         ),
                         _buildPieSection(
                           dist[QuadrantType.schedule]!,
                           total,
-                          Colors.blue,
+                          GameTheme.manaBlue,
                           'Q2',
                         ),
                         _buildPieSection(
                           dist[QuadrantType.delegate]!,
                           total,
-                          Colors.orange,
+                          GameTheme.goldYellow,
                           'Q3',
                         ),
                         _buildPieSection(
                           dist[QuadrantType.eliminate]!,
                           total,
-                          Colors.green,
+                          GameTheme.staminaGreen,
                           'Q4',
                         ),
                       ].where((section) => section.value > 0).toList(),
@@ -348,9 +389,10 @@ class AdvancedCharts extends ConsumerWidget {
       color: color,
       value: count.toDouble(),
       title: title,
-      radius: 40,
+      radius: 36,
       titleStyle: const TextStyle(
-        fontSize: 12,
+        fontFamily: 'Inter',
+        fontSize: 10,
         fontWeight: FontWeight.bold,
         color: Colors.white,
       ),

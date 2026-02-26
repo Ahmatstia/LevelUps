@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/note_provider.dart';
+import '../../../core/theme/game_theme.dart';
 
 class AddNoteBottomSheet extends ConsumerStatefulWidget {
   const AddNoteBottomSheet({super.key});
@@ -25,9 +26,13 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: GameTheme.surface,
+        border: const Border(
+          top: BorderSide(color: GameTheme.neonCyan, width: 2),
+          left: BorderSide(color: GameTheme.neonCyan, width: 1),
+          right: BorderSide(color: GameTheme.neonCyan, width: 1),
+        ),
       ),
       child: Column(
         children: [
@@ -37,21 +42,17 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[600],
+              color: GameTheme.neonCyan.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
 
           // Title
-          const Padding(
-            padding: EdgeInsets.all(16),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
-              'Add New Note',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              'NEW LOG ENTRY',
+              style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 12),
             ),
           ),
 
@@ -65,28 +66,51 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title Field
-                    const Text(
-                      'Title',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                    Text(
+                      'TITLE',
+                      style: GameTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 9,
+                        color: GameTheme.neonCyan,
+                        letterSpacing: 2,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _titleController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
                       decoration: InputDecoration(
-                        hintText: 'Enter note title',
-                        hintStyle: TextStyle(color: Colors.grey[600]),
-                        filled: true,
-                        fillColor: Colors.grey[900],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                        hintText: 'Enter log title ...',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Colors.grey[700],
+                          fontSize: 13,
                         ),
-                        contentPadding: const EdgeInsets.all(16),
+                        filled: true,
+                        fillColor: GameTheme.background,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: const BorderSide(
+                            color: GameTheme.neonCyan,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.all(14),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -98,29 +122,52 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
                     const SizedBox(height: 20),
 
                     // Content Field
-                    const Text(
-                      'Content',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                    Text(
+                      'CONTENT',
+                      style: GameTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 9,
+                        color: GameTheme.neonCyan,
+                        letterSpacing: 2,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _contentController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
                       maxLines: 10,
                       decoration: InputDecoration(
-                        hintText: 'Write your note here...',
-                        hintStyle: TextStyle(color: Colors.grey[600]),
-                        filled: true,
-                        fillColor: Colors.grey[900],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                        hintText: 'Write your log here...',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Colors.grey[700],
+                          fontSize: 13,
                         ),
-                        contentPadding: const EdgeInsets.all(16),
+                        filled: true,
+                        fillColor: GameTheme.background,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: BorderSide(
+                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          borderSide: const BorderSide(
+                            color: GameTheme.neonCyan,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.all(14),
                         alignLabelWithHint: true,
                       ),
                       validator: (value) {
@@ -142,31 +189,59 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border.all(
+                          color: Colors.grey[700]!,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'CANCEL',
+                          style: GameTheme.textTheme.bodySmall?.copyWith(
+                            fontSize: 9,
+                            color: Colors.grey[500],
+                            letterSpacing: 1,
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text('Cancel'),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: _addNote,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: GestureDetector(
+                    onTap: _addNote,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: GameTheme.neonCyan.withValues(alpha: 0.15),
+                        border: Border.all(
+                          color: GameTheme.neonCyan,
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                          ),
+                        ],
                       ),
-                    ),
-                    child: const Text(
-                      'Add Note',
-                      style: TextStyle(color: Colors.white),
+                      child: Center(
+                        child: Text(
+                          'SAVE LOG',
+                          style: GameTheme.textTheme.bodySmall?.copyWith(
+                            fontSize: 9,
+                            color: GameTheme.neonCyan,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -191,16 +266,26 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Note added successfully!'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              backgroundColor: GameTheme.surface,
+              content: Text(
+                'LOG SAVED',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: GameTheme.staminaGreen,
+                  fontSize: 12,
+                ),
+              ),
             ),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: GameTheme.hpRed,
+            ),
           );
         }
       }

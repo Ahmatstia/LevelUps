@@ -24,36 +24,61 @@ class AchievementNotifier extends StateNotifier<List<AchievementModel>> {
         id: 'early_bird',
         title: 'Early Bird',
         description: 'Complete 10 tasks before 8 AM',
+        category: AchievementCategory.productivity,
+        rarity: AchievementRarity.rare,
+        iconData: 'wb_sunny',
         targetValue: 10,
-        icon: Icons.wb_sunny,
+        currentValue: 0,
+        isUnlocked: false,
+        xpReward: 100,
       ),
       AchievementModel(
         id: 'night_owl',
         title: 'Night Owl',
         description: 'Complete 10 tasks after 10 PM',
+        category: AchievementCategory.productivity,
+        rarity: AchievementRarity.rare,
+        iconData: 'nights_stay',
         targetValue: 10,
-        icon: Icons.nights_stay,
+        currentValue: 0,
+        isUnlocked: false,
+        xpReward: 100,
       ),
       AchievementModel(
         id: 'streak_master_1',
         title: 'Streak Starter',
         description: 'Reach a 7-day streak',
+        category: AchievementCategory.streak,
+        rarity: AchievementRarity.common,
+        iconData: 'local_fire_department',
         targetValue: 7,
-        icon: Icons.local_fire_department,
+        currentValue: 0,
+        isUnlocked: false,
+        xpReward: 75,
       ),
       AchievementModel(
         id: 'completionist_1',
         title: 'Getting Started',
         description: 'Complete 50 tasks',
+        category: AchievementCategory.tasks,
+        rarity: AchievementRarity.common,
+        iconData: 'check_circle_outline',
         targetValue: 50,
-        icon: Icons.check_circle_outline,
+        currentValue: 0,
+        isUnlocked: false,
+        xpReward: 150,
       ),
       AchievementModel(
         id: 'balanced_life',
         title: 'Balanced Life',
         description: 'Level up all 4 stats to level 5+',
-        targetValue: 4, // 4 stats need to reach level 5
-        icon: Icons.balance,
+        category: AchievementCategory.stats,
+        rarity: AchievementRarity.epic,
+        iconData: 'balance',
+        targetValue: 4,
+        currentValue: 0,
+        isUnlocked: false,
+        xpReward: 500,
       ),
     ];
 
@@ -72,16 +97,20 @@ class AchievementNotifier extends StateNotifier<List<AchievementModel>> {
     if (achievement == null || achievement.isUnlocked) return;
 
     if (isAbsolute) {
-      achievement.updateProgress(progressToAdd);
+      achievement.currentValue = progressToAdd;
     } else {
-      achievement.incrementProgress(progressToAdd);
+      achievement.currentValue += progressToAdd;
     }
 
-    achievement.save();
+    // Check if target reached
+    if (achievement.currentValue >= achievement.targetValue) {
+      achievement.unlock();
+    }
 
-    // Check if it just unlocked
+    _box.put(achievementId, achievement);
+
+    // Log
     if (achievement.isUnlocked) {
-      // We can trigger a UI notification here through another mechanism
       debugPrint('🏆 ACHIEVEMENT UNLOCKED: ${achievement.title}!');
     }
 

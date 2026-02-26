@@ -14,9 +14,12 @@ class QuestNotifier extends StateNotifier<List<QuestModel>> {
 
     // Remove expired quests
     final keysToRemove = <dynamic>[];
-    for (var quest in _box.values) {
-      if (quest.expiresAt != null && quest.expiresAt!.isBefore(now)) {
-        keysToRemove.add(quest.key);
+    for (var i = 0; i < _box.length; i++) {
+      final quest = _box.getAt(i);
+      if (quest != null &&
+          quest.expiresAt != null &&
+          quest.expiresAt!.isBefore(now)) {
+        keysToRemove.add(_box.keyAt(i));
       }
     }
     for (var key in keysToRemove) {
@@ -50,20 +53,32 @@ class QuestNotifier extends StateNotifier<List<QuestModel>> {
     final q1 = QuestModel(
       id: 'daily_${now.millisecondsSinceEpoch}_1',
       type: QuestType.daily,
+      difficulty: QuestDifficulty.easy,
+      targetStat: 'tasks',
       title: 'Complete 3 tasks',
       description: 'Finish any 3 tasks today',
       targetValue: 3,
-      rewardXp: 50,
+      currentValue: 0,
+      isCompleted: false,
+      isClaimed: false,
+      createdAt: now,
+      xpReward: 50,
       expiresAt: endOfDay,
     );
 
     final q2 = QuestModel(
       id: 'daily_${now.millisecondsSinceEpoch}_2',
       type: QuestType.daily,
+      difficulty: QuestDifficulty.medium,
+      targetStat: 'hard_tasks',
       title: 'Focus Mode',
       description: 'Complete 1 Hard difficulty task',
       targetValue: 1,
-      rewardXp: 100,
+      currentValue: 0,
+      isCompleted: false,
+      isClaimed: false,
+      createdAt: now,
+      xpReward: 100,
       expiresAt: endOfDay,
     );
 
@@ -79,10 +94,16 @@ class QuestNotifier extends StateNotifier<List<QuestModel>> {
     final q1 = QuestModel(
       id: 'weekly_${now.millisecondsSinceEpoch}_1',
       type: QuestType.weekly,
+      difficulty: QuestDifficulty.hard,
+      targetStat: 'tasks',
       title: 'Weekly Warrior',
       description: 'Complete 20 tasks this week',
       targetValue: 20,
-      rewardXp: 500,
+      currentValue: 0,
+      isCompleted: false,
+      isClaimed: false,
+      createdAt: now,
+      xpReward: 500,
       expiresAt: endOfWeek,
     );
 
@@ -98,12 +119,17 @@ class QuestNotifier extends StateNotifier<List<QuestModel>> {
     if (quest == null || quest.isCompleted) return false;
 
     if (isAbsolute) {
-      quest.updateProgress(progressToAdd);
+      quest.currentValue = progressToAdd;
     } else {
-      quest.incrementProgress(progressToAdd);
+      quest.currentValue += progressToAdd;
     }
 
-    quest.save();
+    // Check completion
+    if (quest.currentValue >= quest.targetValue && !quest.isCompleted) {
+      quest.isCompleted = true;
+    }
+
+    _box.put(questId, quest);
     state = _box.values.toList();
 
     // Return true ONLY IF the quest was just completed by this action
