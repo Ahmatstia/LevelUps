@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/task_provider.dart';
 import '../../core/models/task_model.dart';
+import '../../core/providers/locale_provider.dart';
 import 'widgets/add_task_bottom_sheet.dart';
 import 'widgets/calendar_view.dart';
 
@@ -23,15 +24,16 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     // Hapus variable allTasks yang tidak dipakai
     final incompleteTasks = ref.watch(incompleteTasksProvider);
     final completedTasks = ref.watch(completedTasksProvider);
+    final l10n = ref.watch(l10nProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Tasks',
-          style: TextStyle(
+        title: Text(
+          l10n.get('nav_tasks'),
+          style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -65,12 +67,12 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             child: Row(
               children: [
                 _buildMainTab(
-                  'Today',
+                  'Hari Ini',
                   0,
                   todayTasks.length + overdueTasks.length,
                 ),
-                _buildMainTab('All Tasks', 1, incompleteTasks.length),
-                _buildMainTab('Calendar', 2, 0),
+                _buildMainTab('Semua Tugas', 1, incompleteTasks.length),
+                _buildMainTab('Kalender', 2, 0),
               ],
             ),
           ),
@@ -78,10 +80,10 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           // Content based on main tab
           Expanded(
             child: _selectedMainTab == 0
-                ? _buildTodayView(todayTasks, overdueTasks)
+                ? _buildTodayView(todayTasks, overdueTasks, l10n)
                 : _selectedMainTab == 1
-                ? _buildAllTasksView(incompleteTasks, completedTasks)
-                : _buildCalendarView(),
+                ? _buildAllTasksView(incompleteTasks, completedTasks, l10n)
+                : _buildCalendarView(l10n),
           ),
         ],
       ),
@@ -145,6 +147,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   Widget _buildTodayView(
     List<TaskModel> todayTasks,
     List<TaskModel> overdueTasks,
+    dynamic l10n,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -157,9 +160,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Today's Focus",
-            style: TextStyle(
+          Text(
+            l10n.get('dash_today_tasks'), // Reusing string
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -200,7 +203,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
           // Empty State
           if (overdueTasks.isEmpty && todayTasks.isEmpty)
-            _buildEmptyTodayView(),
+            _buildEmptyTodayView(l10n),
         ],
       ),
     );
@@ -210,6 +213,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   Widget _buildAllTasksView(
     List<TaskModel> incomplete,
     List<TaskModel> completed,
+    dynamic l10n,
   ) {
     return Column(
       children: [
@@ -223,8 +227,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           ),
           child: Row(
             children: [
-              _buildSubTab('To Do', 0, incomplete.length),
-              _buildSubTab('Completed', 1, completed.length),
+              _buildSubTab(l10n.get('task_tab_active'), 0, incomplete.length),
+              _buildSubTab(l10n.get('task_tab_completed'), 1, completed.length),
             ],
           ),
         ),
@@ -232,8 +236,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         // Tasks List
         Expanded(
           child: _selectedSubTab == 0
-              ? _buildTaskList(incomplete, isEmptyMessage: 'No tasks yet')
-              : _buildTaskList(completed, isEmptyMessage: 'No completed tasks'),
+              ? _buildTaskList(
+                  incomplete,
+                  isEmptyMessage: 'Belum ada tugas! Tekan tombol + di bawah.',
+                )
+              : _buildTaskList(
+                  completed,
+                  isEmptyMessage: 'Belum ada tugas yang selesai.',
+                ),
         ),
       ],
     );
@@ -266,7 +276,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   }
 
   // CALENDAR VIEW (Placeholder)
-  Widget _buildCalendarView() {
+  Widget _buildCalendarView(dynamic l10n) {
     return const CalendarView();
   }
 
@@ -546,7 +556,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     );
   }
 
-  Widget _buildEmptyTodayView() {
+  Widget _buildEmptyTodayView(dynamic l10n) {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
@@ -557,9 +567,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         children: [
           Icon(Icons.beach_access, size: 64, color: Colors.grey[700]),
           const SizedBox(height: 16),
-          const Text(
-            'All done for today!',
-            style: TextStyle(
+          Text(
+            l10n.get('dash_empty_tasks').split('\n')[0],
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.white,
@@ -567,7 +577,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'No tasks due today. Enjoy your day or add new tasks.',
+            l10n.get('dash_empty_tasks').split('\n')[1],
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
@@ -575,7 +585,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           ElevatedButton.icon(
             onPressed: _showAddTaskSheet,
             icon: const Icon(Icons.add),
-            label: const Text('Add Task'),
+            label: Text(l10n.get('task_add_new')),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/skill_tree_provider.dart';
 import '../../core/models/skill_node_model.dart';
+import '../../core/providers/locale_provider.dart';
 
 class SkillTreeView extends ConsumerWidget {
   const SkillTreeView({super.key});
@@ -10,6 +11,7 @@ class SkillTreeView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final skills = ref.watch(skillTreeProvider);
     final notifier = ref.read(skillTreeProvider.notifier);
+    final l10n = ref.watch(l10nProvider);
 
     if (skills.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -36,7 +38,7 @@ class SkillTreeView extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
-                '$statName SKILLS',
+                '$statName ${l10n.get('rpg_tab_skills').toUpperCase()}',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -46,7 +48,7 @@ class SkillTreeView extends ConsumerWidget {
               ),
             ),
             ...statSkills.map(
-              (skill) => _buildSkillCard(context, skill, ref, notifier),
+              (skill) => _buildSkillCard(context, skill, ref, notifier, l10n),
             ),
             const SizedBox(height: 16),
           ],
@@ -60,16 +62,15 @@ class SkillTreeView extends ConsumerWidget {
     SkillNodeModel skill,
     WidgetRef ref,
     SkillTreeNotifier notifier,
+    dynamic l10n,
   ) {
     // We use the central notifier which handles requirements and points
     void onPressedAction() {
       final success = notifier.unlockOrUpgradeSkill(skill.id);
       if (!success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Not enough Skill Points or missing requirements!'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.get('skill_req_not_met'))));
       }
     }
 
@@ -170,7 +171,7 @@ class SkillTreeView extends ConsumerWidget {
                         Icon(Icons.stars, size: 14, color: Colors.amber[700]),
                         const SizedBox(width: 4),
                         Text(
-                          'Cost: ${skill.currentCost} SP',
+                          '${l10n.get('skill_cost')}: ${skill.currentCost} SP',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -195,7 +196,11 @@ class SkillTreeView extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   minimumSize: const Size(60, 36),
                 ),
-                child: Text(skill.currentLevel == 0 ? 'Unlock' : 'Upgrade'),
+                child: Text(
+                  skill.currentLevel == 0
+                      ? l10n.get('skill_unlock')
+                      : l10n.get('skill_upgrade'),
+                ),
               ),
             ],
           ],

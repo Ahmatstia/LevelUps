@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/analytics_provider.dart';
+import '../../../core/providers/locale_provider.dart';
 
-class InsightsCards extends StatelessWidget {
+class InsightsCards extends ConsumerWidget {
   final AnalyticsData analytics;
 
   const InsightsCards({required this.analytics, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(l10nProvider);
+
     return Column(
       children: [
         Row(
@@ -16,9 +20,9 @@ class InsightsCards extends StatelessWidget {
               child: _buildInsightCard(
                 icon: Icons.access_time_filled,
                 iconColor: Colors.blue,
-                title: 'Most Productive Time',
+                title: l10n.get('insight_prod_time'),
                 value: analytics.mostProductiveTime,
-                subtitle: 'Based on completion hours',
+                subtitle: l10n.get('insight_prod_time_desc'),
               ),
             ),
             const SizedBox(width: 16),
@@ -26,9 +30,9 @@ class InsightsCards extends StatelessWidget {
               child: _buildInsightCard(
                 icon: Icons.calendar_today,
                 iconColor: Colors.purple,
-                title: 'Best Day',
+                title: l10n.get('insight_best_day'),
                 value: analytics.mostProductiveDay,
-                subtitle: 'Day with most completions',
+                subtitle: l10n.get('insight_best_day_desc'),
               ),
             ),
           ],
@@ -40,9 +44,9 @@ class InsightsCards extends StatelessWidget {
               child: _buildInsightCard(
                 icon: Icons.timer,
                 iconColor: Colors.green,
-                title: 'Avg. Completion Time',
-                value: _formatDuration(analytics.averageCompletionTime),
-                subtitle: 'From creation to done',
+                title: l10n.get('insight_avg_time'),
+                value: _formatDuration(analytics.averageCompletionTime, l10n),
+                subtitle: l10n.get('insight_avg_time_desc'),
               ),
             ),
             const SizedBox(width: 16),
@@ -51,9 +55,9 @@ class InsightsCards extends StatelessWidget {
                 child: _buildInsightCard(
                   icon: Icons.warning_amber_rounded,
                   iconColor: Colors.red,
-                  title: 'Burnout Risk',
-                  value: 'High Load Detected',
-                  subtitle: 'Take a break! >25 tasks',
+                  title: l10n.get('insight_burnout'),
+                  value: l10n.get('insight_burnout_val'),
+                  subtitle: l10n.get('insight_burnout_desc'),
                   isAlert: true,
                 ),
               )
@@ -62,9 +66,9 @@ class InsightsCards extends StatelessWidget {
                 child: _buildInsightCard(
                   icon: Icons.spa,
                   iconColor: Colors.teal,
-                  title: 'Pace',
-                  value: 'Healthy',
-                  subtitle: 'Sustainable workload',
+                  title: l10n.get('insight_pace'),
+                  value: l10n.get('insight_pace_val'),
+                  subtitle: l10n.get('insight_pace_desc'),
                 ),
               ),
           ],
@@ -126,15 +130,15 @@ class InsightsCards extends StatelessWidget {
     );
   }
 
-  String _formatDuration(Duration duration) {
+  String _formatDuration(Duration duration, dynamic l10n) {
     if (duration.inDays > 0) {
-      return '${duration.inDays}d ${duration.inHours % 24}h';
+      return '${duration.inDays}${l10n.get('time_d')} ${duration.inHours % 24}${l10n.get('time_h')}';
     } else if (duration.inHours > 0) {
-      return '${duration.inHours}h ${duration.inMinutes % 60}m';
+      return '${duration.inHours}${l10n.get('time_h')} ${duration.inMinutes % 60}${l10n.get('time_m')}';
     } else if (duration.inMinutes > 0) {
-      return '${duration.inMinutes}m';
+      return '${duration.inMinutes}${l10n.get('time_m')}';
     } else {
-      return '< 1m';
+      return '< 1${l10n.get('time_m')}';
     }
   }
 }

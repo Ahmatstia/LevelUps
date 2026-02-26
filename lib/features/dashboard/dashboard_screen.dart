@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/providers/task_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import '../../core/models/user_model.dart';
 import '../../core/models/task_model.dart';
 
@@ -14,6 +15,7 @@ class DashboardScreen extends ConsumerWidget {
     final xpProgress = ref.watch(xpProgressProvider);
     final todayTasks = ref.watch(todayTasksProvider);
     final completedToday = todayTasks.where((t) => t.isCompleted).length;
+    final l10n = ref.watch(l10nProvider);
 
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -27,15 +29,15 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(user),
+              _buildHeader(user, l10n),
               const SizedBox(height: 24),
-              _buildLevelCard(user, xpProgress),
+              _buildLevelCard(user, xpProgress, l10n),
               const SizedBox(height: 24),
-              _buildStatsGrid(user), // Stats grid sudah diperbaiki
+              _buildStatsGrid(user, l10n), // Stats grid sudah diperbaiki
               const SizedBox(height: 24),
-              _buildTodayProgress(todayTasks.length, completedToday),
+              _buildTodayProgress(todayTasks.length, completedToday, l10n),
               const SizedBox(height: 24),
-              _buildRecentTasks(todayTasks),
+              _buildRecentTasks(todayTasks, l10n),
             ],
           ),
         ),
@@ -43,7 +45,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(UserModel user) {
+  Widget _buildHeader(UserModel user, dynamic l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -51,7 +53,7 @@ class DashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Hello, ${user.name}',
+              'Halo, ${user.name}',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -60,7 +62,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Let\'s level up today!',
+              l10n.get('dash_greeting'),
               style: TextStyle(fontSize: 14, color: Colors.grey[400]),
             ),
           ],
@@ -99,7 +101,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLevelCard(UserModel user, double progress) {
+  Widget _buildLevelCard(UserModel user, double progress, dynamic l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -123,7 +125,7 @@ class DashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Level ${user.level}',
+                '${l10n.get('stats_level')} ${user.level}',
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -197,29 +199,29 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsGrid(UserModel user) {
+  Widget _buildStatsGrid(UserModel user, dynamic l10n) {
     final stats = [
       {
         'icon': Icons.school,
-        'label': 'Intel',
+        'label': l10n.get('task_stat_int'),
         'value': user.intelligence,
         'color': Colors.blue,
       },
       {
         'icon': Icons.fitness_center,
-        'label': 'Disc',
+        'label': l10n.get('task_stat_disc'),
         'value': user.discipline,
         'color': Colors.green,
       },
       {
         'icon': Icons.favorite,
-        'label': 'Health',
+        'label': l10n.get('task_stat_hp'),
         'value': user.health,
         'color': Colors.red,
       },
       {
         'icon': Icons.attach_money,
-        'label': 'Wealth',
+        'label': l10n.get('task_stat_wlth'),
         'value': user.wealth,
         'color': Colors.amber,
       },
@@ -282,7 +284,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTodayProgress(int total, int completed) {
+  Widget _buildTodayProgress(int total, int completed, dynamic l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -298,9 +300,9 @@ class DashboardScreen extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Today\'s Progress',
-                style: TextStyle(
+              Text(
+                l10n.get('dash_xp_progress'),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -341,15 +343,15 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentTasks(List<TaskModel> tasks) {
+  Widget _buildRecentTasks(List<TaskModel> tasks, dynamic l10n) {
     final recentTasks = tasks.take(3).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recent Tasks',
-          style: TextStyle(
+        Text(
+          l10n.get('dash_today_tasks'),
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -371,16 +373,21 @@ class DashboardScreen extends ConsumerWidget {
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.task_alt, size: 48, color: Colors.grey[700]),
-                  const SizedBox(height: 12),
+                  Icon(Icons.rocket_launch, size: 48, color: Colors.blue[300]),
+                  const SizedBox(height: 16),
                   Text(
-                    'No tasks yet',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    l10n.get('dash_empty_tasks').split('\n')[0],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Add a task to start your journey',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    l10n.get('dash_empty_tasks').split('\n')[1],
+                    style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

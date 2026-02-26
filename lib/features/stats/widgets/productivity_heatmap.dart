@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers/locale_provider.dart';
 
-class ProductivityHeatmap extends StatelessWidget {
+class ProductivityHeatmap extends ConsumerWidget {
   final Map<DateTime, int> heatmapData;
 
   const ProductivityHeatmap({required this.heatmapData, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(l10nProvider);
+
     // Generate dates for the last 90 days (approx 13 weeks)
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -40,16 +44,16 @@ class ProductivityHeatmap extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Productivity Map',
-                style: TextStyle(
+              Text(
+                l10n.get('stats_heatmap'),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
               Text(
-                'Last 90 Days',
+                l10n.get('stats_heatmap_desc'),
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
               ),
             ],
@@ -69,17 +73,17 @@ class ProductivityHeatmap extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Mon',
+                        l10n.get('cal_mon'),
                         style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Wed',
+                        l10n.get('cal_wed'),
                         style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Fri',
+                        l10n.get('cal_fri'),
                         style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                     ],
@@ -95,7 +99,7 @@ class ProductivityHeatmap extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                'Less',
+                l10n.get('heatmap_less'),
                 style: TextStyle(fontSize: 10, color: Colors.grey[500]),
               ),
               const SizedBox(width: 4),
@@ -110,7 +114,7 @@ class ProductivityHeatmap extends StatelessWidget {
               _buildLegendBox(4),
               const SizedBox(width: 4),
               Text(
-                'More',
+                l10n.get('heatmap_more'),
                 style: TextStyle(fontSize: 10, color: Colors.grey[500]),
               ),
             ],

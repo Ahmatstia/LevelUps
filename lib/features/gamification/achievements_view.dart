@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/achievement_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import 'package:intl/intl.dart';
 
 class AchievementsView extends ConsumerWidget {
@@ -9,6 +10,7 @@ class AchievementsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final achievements = ref.watch(achievementProvider);
+    final l10n = ref.watch(l10nProvider);
 
     if (achievements.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -98,7 +100,7 @@ class AchievementsView extends ConsumerWidget {
                 // Progress or Date
                 if (isUnlocked && achievement.dateUnlocked != null) ...[
                   Text(
-                    'Achieved ${DateFormat('MMM dd').format(achievement.dateUnlocked!)}',
+                    '${l10n.get('achieve_unlocked')} ${DateFormat('MMM dd').format(achievement.dateUnlocked!)}',
                     style: const TextStyle(
                       fontSize: 10,
                       color: Colors.green,

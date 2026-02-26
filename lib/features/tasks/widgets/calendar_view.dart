@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/task_provider.dart';
 import '../../../core/models/task_model.dart';
+import '../../../core/providers/locale_provider.dart';
 import 'package:intl/intl.dart';
 
 class CalendarView extends ConsumerStatefulWidget {
@@ -18,6 +19,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
   @override
   Widget build(BuildContext context) {
     final allTasks = ref.watch(taskProvider);
+    final l10n = ref.watch(l10nProvider);
 
     return Column(
       children: [
@@ -68,17 +70,29 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                .map(
-                  (day) => Expanded(
-                    child: Text(
-                      day,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                    ),
-                  ),
-                )
-                .toList(),
+            children:
+                [
+                      l10n.get('cal_mon'),
+                      l10n.get('cal_tue'),
+                      l10n.get('cal_wed'),
+                      l10n.get('cal_thu'),
+                      l10n.get('cal_fri'),
+                      l10n.get('cal_sat'),
+                      l10n.get('cal_sun'),
+                    ]
+                    .map(
+                      (day) => Expanded(
+                        child: Text(
+                          day,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
           ),
         ),
         const SizedBox(height: 8),
@@ -87,7 +101,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
         Expanded(child: _buildCalendarGrid(allTasks)),
 
         // Selected Date Tasks
-        if (_selectedDate != null) _buildSelectedDateTasks(allTasks),
+        if (_selectedDate != null) _buildSelectedDateTasks(allTasks, l10n),
       ],
     );
   }
@@ -195,7 +209,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
     );
   }
 
-  Widget _buildSelectedDateTasks(List<TaskModel> allTasks) {
+  Widget _buildSelectedDateTasks(List<TaskModel> allTasks, dynamic l10n) {
     if (_selectedDate == null) return const SizedBox.shrink();
 
     final tasksForDay = allTasks.where((task) {
@@ -227,7 +241,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
             child: tasksForDay.isEmpty
                 ? Center(
                     child: Text(
-                      'No tasks scheduled',
+                      l10n.get('dash_empty_tasks').split('\n')[0],
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   )

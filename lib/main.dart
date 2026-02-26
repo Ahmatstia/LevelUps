@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/tasks/tasks_screen.dart';
 import 'features/stats/stats_screen.dart';
-import 'features/notes/notes_screen.dart';
 import 'features/gamification/gamification_screen.dart';
+import 'features/settings/settings_screen.dart';
+import 'core/providers/locale_provider.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
@@ -90,11 +91,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     const TasksScreen(),
     const GamificationScreen(), // The Hub
     const StatsScreen(),
-    const NotesScreen(),
+    const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = ref.watch(l10nProvider);
+
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
@@ -117,31 +120,31 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           type: BottomNavigationBarType.fixed,
           selectedItemColor: Colors.blue,
           unselectedItemColor: Colors.grey[600],
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard),
-              label: 'Dashboard',
+              icon: const Icon(Icons.dashboard_outlined),
+              activeIcon: const Icon(Icons.dashboard),
+              label: l10n.get('nav_dashboard'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.task_outlined),
-              activeIcon: Icon(Icons.task),
-              label: 'Tasks',
+              icon: const Icon(Icons.task_outlined),
+              activeIcon: const Icon(Icons.task),
+              label: l10n.get('nav_tasks'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.emoji_events_outlined),
-              activeIcon: Icon(Icons.emoji_events),
-              label: 'RPG',
+              icon: const Icon(Icons.emoji_events_outlined),
+              activeIcon: const Icon(Icons.emoji_events),
+              label: l10n.get('nav_rpg'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart_outlined),
-              activeIcon: Icon(Icons.bar_chart),
-              label: 'Stats',
+              icon: const Icon(Icons.bar_chart_outlined),
+              activeIcon: const Icon(Icons.bar_chart),
+              label: l10n.get('nav_stats'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.note_outlined),
-              activeIcon: Icon(Icons.note),
-              label: 'Notes',
+              icon: const Icon(Icons.settings_outlined),
+              activeIcon: const Icon(Icons.settings),
+              label: l10n.get('settings_title'),
             ),
           ],
         ),

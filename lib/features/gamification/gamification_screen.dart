@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/user_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import 'quests_view.dart';
 import 'achievements_view.dart';
 import 'skill_tree_view.dart';
@@ -12,12 +13,13 @@ class GamificationScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
     final skillPoints = user?.skillPoints ?? 0;
+    final l10n = ref.watch(l10nProvider);
 
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('RPG Progress'),
+          title: Text(l10n.get('nav_rpg')),
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
@@ -49,11 +51,20 @@ class GamificationScreen extends ConsumerWidget {
               ),
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.assignment), text: 'Quests'),
-              Tab(icon: Icon(Icons.emoji_events), text: 'Badges'),
-              Tab(icon: Icon(Icons.account_tree), text: 'Skills'),
+              Tab(
+                icon: const Icon(Icons.assignment),
+                text: l10n.get('rpg_tab_quests'),
+              ),
+              Tab(
+                icon: const Icon(Icons.emoji_events),
+                text: l10n.get('rpg_tab_badges'),
+              ),
+              Tab(
+                icon: const Icon(Icons.account_tree),
+                text: l10n.get('rpg_tab_skills'),
+              ),
             ],
             indicatorColor: Colors.amber,
             labelColor: Colors.amber,

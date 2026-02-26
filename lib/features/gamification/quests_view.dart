@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/quest_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import 'package:intl/intl.dart';
 
 class QuestsView extends ConsumerWidget {
@@ -9,6 +10,7 @@ class QuestsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final quests = ref.watch(questProvider);
+    final l10n = ref.watch(l10nProvider);
 
     // Sort so incomplete quests are on top
     final sortedQuests = [...quests]
@@ -19,11 +21,7 @@ class QuestsView extends ConsumerWidget {
       });
 
     if (sortedQuests.isEmpty) {
-      return const Center(
-        child: Text(
-          'No active quests. Completing tasks will generate new ones.',
-        ),
-      );
+      return Center(child: Text(l10n.get('quest_empty')));
     }
 
     return ListView.builder(
@@ -148,7 +146,7 @@ class QuestsView extends ConsumerWidget {
                       if (quest.expiresAt != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          'Expires: ${DateFormat('MMM dd, hh:mm a').format(quest.expiresAt!)}',
+                          '${l10n.get('quest_expires')} ${DateFormat('MMM dd, hh:mm a').format(quest.expiresAt!)}',
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.red[300],

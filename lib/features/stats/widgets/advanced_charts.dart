@@ -2,32 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/models/task_model.dart';
 import '../../../core/providers/analytics_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/providers/locale_provider.dart';
 
-class AdvancedCharts extends StatelessWidget {
+class AdvancedCharts extends ConsumerWidget {
   final AnalyticsData analytics;
 
   const AdvancedCharts({required this.analytics, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(l10nProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLineChartCard(),
+        _buildLineChartCard(l10n),
         const SizedBox(height: 24),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _buildBarChartCard()),
+            Expanded(child: _buildBarChartCard(l10n)),
             const SizedBox(width: 16),
-            Expanded(child: _buildPieChartCard()),
+            Expanded(child: _buildPieChartCard(l10n)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildLineChartCard() {
+  Widget _buildLineChartCard(dynamic l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -45,9 +49,9 @@ class AdvancedCharts extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'XP Growth Trend (7 Days)',
-            style: TextStyle(
+          Text(
+            l10n.get('chart_xp'),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -55,7 +59,7 @@ class AdvancedCharts extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Total XP gained over the last week',
+            l10n.get('chart_xp_desc'),
             style: TextStyle(fontSize: 12, color: Colors.grey[400]),
           ),
           const SizedBox(height: 24),
@@ -88,14 +92,14 @@ class AdvancedCharts extends StatelessWidget {
                       reservedSize: 30,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
-                        const days = [
+                        final days = [
                           '6d',
                           '5d',
                           '4d',
                           '3d',
                           '2d',
                           '1d',
-                          'Today',
+                          l10n.get('task_tab_today'),
                         ];
                         if (value >= 0 && value < days.length) {
                           return Padding(
@@ -174,7 +178,7 @@ class AdvancedCharts extends StatelessWidget {
     );
   }
 
-  Widget _buildBarChartCard() {
+  Widget _buildBarChartCard(dynamic l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -184,9 +188,9 @@ class AdvancedCharts extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Tasks Done',
-            style: TextStyle(
+          Text(
+            l10n.get('chart_tasks'),
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -265,7 +269,7 @@ class AdvancedCharts extends StatelessWidget {
     );
   }
 
-  Widget _buildPieChartCard() {
+  Widget _buildPieChartCard(dynamic l10n) {
     final dist = analytics.quadrantDistribution;
     final total = dist.values.fold(0, (sum, count) => sum + count);
 
@@ -278,9 +282,9 @@ class AdvancedCharts extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Quadrant Focus',
-            style: TextStyle(
+          Text(
+            l10n.get('chart_quadrant'),
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -290,10 +294,10 @@ class AdvancedCharts extends StatelessWidget {
           SizedBox(
             height: 150,
             child: total == 0
-                ? const Center(
+                ? Center(
                     child: Text(
-                      'No data',
-                      style: TextStyle(color: Colors.grey),
+                      l10n.get('dash_empty_tasks').split('\n')[0],
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   )
                 : PieChart(

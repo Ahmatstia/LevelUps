@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/task_model.dart';
 import '../../../core/providers/task_provider.dart';
+import '../../../core/providers/locale_provider.dart';
 import 'quadrant_selector.dart';
 import 'tag_selector.dart';
 
@@ -36,6 +37,8 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = ref.watch(l10nProvider);
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.95,
       decoration: const BoxDecoration(
@@ -56,11 +59,11 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
           ),
 
           // Title
-          const Padding(
-            padding: EdgeInsets.all(16),
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
-              'Add New Task',
-              style: TextStyle(
+              l10n.get('task_add_new'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -78,9 +81,9 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title Field
-                    const Text(
-                      'Task Title',
-                      style: TextStyle(
+                    Text(
+                      l10n.get('task_title'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey,
@@ -111,9 +114,9 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                     const SizedBox(height: 20),
 
                     // Description Field
-                    const Text(
-                      'Description (Optional)',
-                      style: TextStyle(
+                    Text(
+                      l10n.get('task_desc'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey,
@@ -140,7 +143,7 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
 
                     // Due Date & Time
                     const Text(
-                      'Due Date & Time',
+                      'Tanggal & Waktu Tenggat',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -180,7 +183,7 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
 
                     // Energy Level
                     const Text(
-                      'Energy Level',
+                      'Tingkat Energi',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -216,9 +219,9 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                     const SizedBox(height: 20),
 
                     // Difficulty Selection
-                    const Text(
-                      'Difficulty',
-                      style: TextStyle(
+                    Text(
+                      l10n.get('task_difficulty'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey,
@@ -237,9 +240,9 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                     const SizedBox(height: 20),
 
                     // Stat Selection
-                    const Text(
-                      'Stat to Increase',
-                      style: TextStyle(
+                    Text(
+                      l10n.get('task_stat_type'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey,
@@ -290,9 +293,9 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Add Task',
-                      style: TextStyle(color: Colors.white),
+                    child: Text(
+                      l10n.get('task_save'),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

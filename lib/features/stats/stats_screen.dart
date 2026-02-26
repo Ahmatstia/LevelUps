@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/providers/task_provider.dart';
 import '../../core/providers/analytics_provider.dart';
+import '../../core/providers/locale_provider.dart';
 import '../../core/models/user_model.dart';
 import 'widgets/productivity_heatmap.dart';
 import 'widgets/insights_cards.dart';
@@ -17,6 +18,7 @@ class StatsScreen extends ConsumerWidget {
     final completedTasks = ref.watch(completedTasksProvider);
     final incompleteTasks = ref.watch(incompleteTasksProvider);
     final analytics = ref.watch(analyticsProvider); // Grab the new analytics
+    final l10n = ref.watch(l10nProvider);
 
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -27,9 +29,9 @@ class StatsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Statistics & Analytics',
-          style: TextStyle(
+        title: Text(
+          l10n.get('nav_stats'),
+          style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -46,23 +48,24 @@ class StatsScreen extends ConsumerWidget {
               user,
               completedTasks.length,
               incompleteTasks.length,
+              l10n,
             ),
             const SizedBox(height: 24),
 
             // 2. Level & Streak Row
             Row(
               children: [
-                Expanded(flex: 3, child: _buildLevelCard(user)),
+                Expanded(flex: 3, child: _buildLevelCard(user, l10n)),
                 const SizedBox(width: 16),
-                Expanded(flex: 2, child: _buildStreakCard(user)),
+                Expanded(flex: 2, child: _buildStreakCard(user, l10n)),
               ],
             ),
             const SizedBox(height: 32),
 
             // 3. New AI Insights / Advanced Analytics
-            const Text(
-              'AI Productivity Insights',
-              style: TextStyle(
+            Text(
+              l10n.get('stats_insight'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -77,9 +80,9 @@ class StatsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 5. Advanced Charts (Line XP, Bar Tasks, Pie Quadrants)
-            const Text(
-              'Performance Charts',
-              style: TextStyle(
+            Text(
+              l10n.get('stats_charts'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -90,16 +93,16 @@ class StatsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 6. RPG Stats Detail
-            const Text(
-              'RPG Stats Progress',
-              style: TextStyle(
+            Text(
+              l10n.get('stats_rpg'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 16),
-            _buildStatProgress(user),
+            _buildStatProgress(user, l10n),
             const SizedBox(height: 40),
           ],
         ),
@@ -107,7 +110,12 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatSummary(UserModel user, int completed, int incomplete) {
+  Widget _buildStatSummary(
+    UserModel user,
+    int completed,
+    int incomplete,
+    dynamic l10n,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -128,25 +136,25 @@ class StatsScreen extends ConsumerWidget {
           _buildSummaryItem(
             icon: Icons.star,
             value: user.level.toString(),
-            label: 'Level',
+            label: l10n.get('stats_level'),
             color: Colors.amber,
           ),
           _buildSummaryItem(
             icon: Icons.flash_on,
             value: user.totalXp.toString(),
-            label: 'Total XP',
+            label: l10n.get('stats_total_xp'),
             color: Colors.blue,
           ),
           _buildSummaryItem(
             icon: Icons.check_circle,
             value: completed.toString(),
-            label: 'Done',
+            label: l10n.get('task_tab_completed'),
             color: Colors.green,
           ),
           _buildSummaryItem(
             icon: Icons.pending_actions,
             value: incomplete.toString(),
-            label: 'To Do',
+            label: l10n.get('task_tab_active'),
             color: Colors.orange,
           ),
         ],
@@ -177,7 +185,7 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLevelCard(UserModel user) {
+  Widget _buildLevelCard(UserModel user, dynamic l10n) {
     final nextLevelXp = 100 * user.level;
     final currentLevelBaseXp = 100 * (user.level - 1);
     final currentLevelXp = user.totalXp - currentLevelBaseXp;
@@ -193,9 +201,9 @@ class StatsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Current Level',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Text(
+            l10n.get('stats_level'),
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 4),
           Text(
@@ -249,7 +257,7 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStreakCard(UserModel user) {
+  Widget _buildStreakCard(UserModel user, dynamic l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -274,7 +282,7 @@ class StatsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${user.streak} Days',
+            '${user.streak}',
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -283,7 +291,7 @@ class StatsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Streak',
+            l10n.get('stats_streak'),
             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
@@ -291,7 +299,7 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatProgress(UserModel user) {
+  Widget _buildStatProgress(UserModel user, dynamic l10n) {
     final stats = [
       {
         'label': 'Intelligence',
