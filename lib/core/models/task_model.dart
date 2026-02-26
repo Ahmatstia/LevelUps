@@ -304,7 +304,17 @@ class TaskModel {
 
   bool get isOverdue {
     if (dueDate == null || isCompleted) return false;
-    return dueDate!.isBefore(DateTime.now());
+    final now = DateTime.now();
+
+    // Normalisasi hari
+    final today = DateTime(now.year, now.month, now.day);
+    final dueDay = DateTime(dueDate!.year, dueDate!.month, dueDate!.day);
+
+    // Jika deadline adalah hari kemarin atau lebih lama
+    if (dueDay.isBefore(today)) return true;
+
+    // Jika deadline hari ini, dan waktunya sudah lewat
+    return dueDate!.isBefore(now);
   }
 
   bool get isDueToday {

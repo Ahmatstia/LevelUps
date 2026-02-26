@@ -65,6 +65,9 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     final updatedTask = task.copyWith(
       isCompleted: true,
       completedAt: DateTime.now(),
+      subtasks: task.subtasks
+          .map((st) => st.copyWith(isCompleted: true))
+          .toList(),
     );
 
     await _repository.updateTask(updatedTask);
@@ -96,37 +99,53 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
   // Buat task berikutnya untuk recurring
   void _createNextRecurringTask(TaskModel completedTask) {
     DateTime? nextDueDate;
+    final baseDate = DateTime.now(); // Base on current date
 
     switch (completedTask.recurringType) {
       case RecurringType.daily:
-        nextDueDate = completedTask.dueDate?.add(const Duration(days: 1));
+        nextDueDate = baseDate.add(const Duration(days: 1));
         break;
       case RecurringType.weekly:
-        nextDueDate = completedTask.dueDate?.add(const Duration(days: 7));
+        nextDueDate = baseDate.add(const Duration(days: 7));
         break;
       case RecurringType.monthly:
-        nextDueDate = completedTask.dueDate?.add(const Duration(days: 30));
+        nextDueDate = DateTime(
+          baseDate.year,
+          baseDate.month + 1,
+          baseDate.day,
+          baseDate.hour,
+          baseDate.minute,
+        );
         break;
       default:
         return;
     }
 
-    if (nextDueDate != null) {
-      final newTask = TaskModel.create(
-        title: completedTask.title,
-        description: completedTask.description,
-        difficulty: completedTask.difficulty,
-        statType: completedTask.statType,
-        dueDate: nextDueDate,
-        recurringType: completedTask.recurringType,
-        energyLevel: completedTask.energyLevel,
-        quadrant: completedTask.quadrant,
-        tagIds: completedTask.tagIds,
+    // Preserve the original dueTime
+    if (completedTask.dueDate != null) {
+      nextDueDate = DateTime(
+        nextDueDate.year,
+        nextDueDate.month,
+        nextDueDate.day,
+        completedTask.dueDate!.hour,
+        completedTask.dueDate!.minute,
       );
-
-      _repository.addTask(newTask);
-      state = [...state, newTask];
     }
+
+    final newTask = TaskModel.create(
+      title: completedTask.title,
+      description: completedTask.description,
+      difficulty: completedTask.difficulty,
+      statType: completedTask.statType,
+      dueDate: nextDueDate,
+      recurringType: completedTask.recurringType,
+      energyLevel: completedTask.energyLevel,
+      quadrant: completedTask.quadrant,
+      tagIds: completedTask.tagIds,
+    );
+
+    _repository.addTask(newTask);
+    state = [...state, newTask];
   }
 
   // Hapus task
@@ -172,6 +191,7 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
     return state.where((task) {
       if (task.isCompleted) return false;
       if (task.dueDate == null) return false;
+      if (task.isOverdue) return false;
 
       return task.dueDate!.year == now.year &&
           task.dueDate!.month == now.month &&
@@ -229,6 +249,7 @@ final todayTasksProvider = Provider<List<TaskModel>>((ref) {
   return tasks.where((task) {
     if (task.isCompleted) return false;
     if (task.dueDate == null) return false;
+    if (task.isOverdue) return false;
 
     return task.dueDate!.year == now.year &&
         task.dueDate!.month == now.month &&

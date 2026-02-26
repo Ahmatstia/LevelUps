@@ -597,14 +597,26 @@ class _AddTaskBottomSheetState extends ConsumerState<AddTaskBottomSheet> {
       try {
         // Combine date and time if both selected
         DateTime? dueDate;
-        if (_selectedDueDate != null && _selectedDueTime != null) {
-          dueDate = DateTime(
-            _selectedDueDate!.year,
-            _selectedDueDate!.month,
-            _selectedDueDate!.day,
-            _selectedDueTime!.hour,
-            _selectedDueTime!.minute,
-          );
+        if (_selectedDueDate != null) {
+          if (_selectedDueTime != null) {
+            dueDate = DateTime(
+              _selectedDueDate!.year,
+              _selectedDueDate!.month,
+              _selectedDueDate!.day,
+              _selectedDueTime!.hour,
+              _selectedDueTime!.minute,
+            );
+          } else {
+            // Default to end of the day if time is not selected
+            dueDate = DateTime(
+              _selectedDueDate!.year,
+              _selectedDueDate!.month,
+              _selectedDueDate!.day,
+              23,
+              59,
+              59,
+            );
+          }
         }
 
         await ref
