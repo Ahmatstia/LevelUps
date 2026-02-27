@@ -24,6 +24,7 @@ import 'core/providers/task_provider.dart';
 import 'core/services/notification_service.dart';
 import 'core/widgets/level_up_overlay.dart';
 import 'core/widgets/daily_reward_dialog.dart';
+import 'features/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,7 +78,7 @@ class LevelUpApp extends StatelessWidget {
       title: 'LevelUp',
       debugShowCheckedModeBanner: false,
       theme: GameTheme.darkTheme,
-      home: const MainNavigationScreen(),
+      home: const SplashScreen(),
     );
   }
 }

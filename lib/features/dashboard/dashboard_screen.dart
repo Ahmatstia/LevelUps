@@ -69,22 +69,29 @@ class DashboardScreen extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${l10n.get('dash_greeting').split(' ')[0]} ${user.name}!',
-              style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'READY TO CONTINUE?',
-              style: GameTheme.textTheme.bodyMedium?.copyWith(
-                color: GameTheme.neonPink,
-                letterSpacing: 1.5,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${l10n.get('dash_greeting').split(' ')[0]} ${user.name}!',
+                style: GameTheme.neonTextStyle(
+                  GameTheme.neonCyan,
+                  fontSize: 18,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'READY TO CONTINUE?',
+                style: GameTheme.textTheme.bodyMedium?.copyWith(
+                  color: GameTheme.neonPink,
+                  letterSpacing: 1.5,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -141,11 +148,14 @@ class DashboardScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${l10n.get('stats_level')} ${user.level}',
-                style: GameTheme.neonTextStyle(
-                  GameTheme.neonCyan,
-                  fontSize: 24,
+              Flexible(
+                child: Text(
+                  '${l10n.get('stats_level')} ${user.level}',
+                  style: GameTheme.neonTextStyle(
+                    GameTheme.neonCyan,
+                    fontSize: 24,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
