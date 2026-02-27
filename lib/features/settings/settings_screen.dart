@@ -1,16 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hive/hive.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/user_provider.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/theme/game_theme.dart';
 import '../../core/widgets/rpg_status_bar.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  late Box _settings;
+
+  @override
+  void initState() {
+    super.initState();
+    _settings = Hive.box('settings');
+  }
+
+  bool _getBool(String key, {bool defaultVal = true}) =>
+      _settings.get(key, defaultValue: defaultVal) as bool;
+
+  Future<void> _setNotifBool(String key, bool val) async {
+    await _settings.put(key, val);
+    setState(() {});
+    final svc = NotificationService();
+    if (key == 'notif_morning') {
+      if (val) {
+        await svc.scheduleMorningBriefing();
+      } else {
+        await svc.cancelMorning();
+      }
+    } else if (key == 'notif_evening') {
+      if (val) {
+        await svc.scheduleEveningRecap();
+      } else {
+        await svc.cancelEvening();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = ref.watch(l10nProvider);
     final currentLocale = ref.watch(localeProvider);
     final user = ref.watch(userProvider);
@@ -175,6 +212,56 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ).animate().fadeIn(delay: 200.ms).slideX(begin: 0.1),
+
+          const SizedBox(height: 20),
+
+          // ── Notification Settings ────────────────────────────────
+          _sectionLabel('NOTIFICATIONS'),
+          const SizedBox(height: 8),
+
+          _gamePanel(
+            child: Column(
+              children: [
+                _settingRow(
+                  icon: Icons.wb_sunny,
+                  iconColor: GameTheme.goldYellow,
+                  title: 'MORNING BRIEFING (07:00)',
+                  trailing: Switch(
+                    value: _getBool('notif_morning'),
+                    activeTrackColor: GameTheme.goldYellow.withValues(
+                      alpha: 0.4,
+                    ),
+                    activeThumbColor: GameTheme.goldYellow,
+                    onChanged: (val) => _setNotifBool('notif_morning', val),
+                  ),
+                ),
+                _divider(),
+                _settingRow(
+                  icon: Icons.nights_stay,
+                  iconColor: GameTheme.manaBlue,
+                  title: 'EVENING RECAP (21:00)',
+                  trailing: Switch(
+                    value: _getBool('notif_evening'),
+                    activeTrackColor: GameTheme.manaBlue.withValues(alpha: 0.4),
+                    activeThumbColor: GameTheme.manaBlue,
+                    onChanged: (val) => _setNotifBool('notif_evening', val),
+                  ),
+                ),
+                _divider(),
+                _settingRow(
+                  icon: Icons.warning_amber,
+                  iconColor: GameTheme.hpRed,
+                  title: 'OVERDUE ALERTS',
+                  trailing: Switch(
+                    value: _getBool('notif_overdue'),
+                    activeTrackColor: GameTheme.hpRed.withValues(alpha: 0.4),
+                    activeThumbColor: GameTheme.hpRed,
+                    onChanged: (val) => _setNotifBool('notif_overdue', val),
+                  ),
+                ),
+              ],
+            ),
+          ).animate().fadeIn(delay: 280.ms).slideX(begin: 0.1),
 
           const SizedBox(height: 20),
 

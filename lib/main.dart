@@ -7,6 +7,7 @@ import 'features/stats/stats_screen.dart';
 import 'features/notes/notes_screen.dart';
 import 'features/gamification/gamification_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/habits/habits_screen.dart';
 import 'core/models/user_model.dart';
 import 'core/models/task_model.dart';
 import 'core/models/note_model.dart';
@@ -15,10 +16,14 @@ import 'core/models/subtask_model.dart';
 import 'core/models/achievement_model.dart';
 import 'core/models/quest_model.dart';
 import 'core/models/skill_node_model.dart';
+import 'core/models/habit_model.dart';
 import 'core/theme/game_theme.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/user_provider.dart';
+import 'core/providers/task_provider.dart';
+import 'core/services/notification_service.dart';
 import 'core/widgets/level_up_overlay.dart';
+import 'core/widgets/daily_reward_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +49,8 @@ void main() async {
   Hive.registerAdapter(QuestTypeAdapter());
   Hive.registerAdapter(QuestDifficultyAdapter());
   Hive.registerAdapter(SkillTypeAdapter());
+  Hive.registerAdapter(HabitModelAdapter());
+  Hive.registerAdapter(HabitFrequencyAdapter());
 
   await Hive.openBox('settings');
   await Hive.openBox<UserModel>('user_data');
@@ -53,6 +60,10 @@ void main() async {
   await Hive.openBox<AchievementModel>('achievements');
   await Hive.openBox<QuestModel>('quests');
   await Hive.openBox<SkillNodeModel>('skills');
+  await Hive.openBox<HabitModel>('habits');
+
+  // Init notification service
+  await NotificationService().initialize();
 
   runApp(const ProviderScope(child: LevelUpApp()));
 }
@@ -85,16 +96,26 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   @override
   void initState() {
     super.initState();
+    // Show daily reward & schedule notifications after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Daily reward dialog
+      if (mounted) {
+        await DailyRewardDialog.show(context, ref);
+      }
+      // Schedule notifications
+      final taskCount = ref.read(todayTasksProvider).length;
+      await NotificationService().scheduleMorningBriefing(taskCount: taskCount);
+      await NotificationService().scheduleEveningRecap();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Listen to level changes
+    // Listen to level changes for level-up overlay
     ref.listen(userProvider, (previous, current) {
       if (previous != null &&
           current != null &&
           current.level > previous.level) {
-        // Level up detected!
         LevelUpOverlay.show(context, newLevel: current.level);
       }
     });
@@ -104,6 +125,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final screens = [
       const DashboardScreen(),
       const TasksScreen(),
+      const HabitsScreen(),
       const StatsScreen(),
       const GamificationScreen(),
       const NotesScreen(),
@@ -136,37 +158,41 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           unselectedItemColor: Colors.grey[700],
           selectedLabelStyle: const TextStyle(
             fontFamily: 'PressStart2P',
-            fontSize: 8,
-            letterSpacing: 1,
+            fontSize: 7,
+            letterSpacing: 0.5,
           ),
           unselectedLabelStyle: const TextStyle(
             fontFamily: 'PressStart2P',
-            fontSize: 8,
-            letterSpacing: 1,
+            fontSize: 7,
+            letterSpacing: 0.5,
           ),
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard, size: 20),
+              icon: const Icon(Icons.dashboard, size: 20),
               label: l10n.get('nav_dashboard').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.task, size: 20),
+              icon: const Icon(Icons.task, size: 20),
               label: l10n.get('nav_tasks').toUpperCase(),
             ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.repeat, size: 20),
+              label: 'HABITS',
+            ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart, size: 20),
+              icon: const Icon(Icons.bar_chart, size: 20),
               label: l10n.get('nav_stats').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.auto_awesome, size: 20),
+              icon: const Icon(Icons.auto_awesome, size: 20),
               label: l10n.get('nav_rpg').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.note, size: 20),
+              icon: const Icon(Icons.note, size: 20),
               label: l10n.get('nav_notes').toUpperCase(),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings, size: 20),
+              icon: const Icon(Icons.settings, size: 20),
               label: l10n.get('settings_title').toUpperCase(),
             ),
           ],
