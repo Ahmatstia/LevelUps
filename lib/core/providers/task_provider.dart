@@ -189,17 +189,23 @@ class TaskNotifier extends StateNotifier<List<TaskModel>> {
         .toList();
   }
 
-  // Dapatkan task hari ini (due today)
+  // Dapatkan task hari ini (due today + completed today)
   List<TaskModel> get todayTasks {
     final now = DateTime.now();
     return state.where((task) {
-      if (task.isCompleted) return false;
-      if (task.dueDate == null) return false;
-      if (task.isOverdue) return false;
-
-      return task.dueDate!.year == now.year &&
-          task.dueDate!.month == now.month &&
-          task.dueDate!.day == now.day;
+      // Task yang sudah diselesaikan hari ini
+      if (task.isCompleted && task.completedAt != null) {
+        return task.completedAt!.year == now.year &&
+            task.completedAt!.month == now.month &&
+            task.completedAt!.day == now.day;
+      }
+      // Task yang due hari ini dan belum selesai
+      if (!task.isCompleted && task.dueDate != null && !task.isOverdue) {
+        return task.dueDate!.year == now.year &&
+            task.dueDate!.month == now.month &&
+            task.dueDate!.day == now.day;
+      }
+      return false;
     }).toList();
   }
 
@@ -246,18 +252,36 @@ final completedTasksProvider = Provider<List<TaskModel>>((ref) {
   return tasks.where((task) => task.isCompleted).toList();
 });
 
-// Provider untuk today's tasks
+// Provider untuk today's tasks (termasuk yang sudah diselesaikan hari ini)
 final todayTasksProvider = Provider<List<TaskModel>>((ref) {
   final tasks = ref.watch(taskProvider);
   final now = DateTime.now();
   return tasks.where((task) {
-    if (task.isCompleted) return false;
-    if (task.dueDate == null) return false;
-    if (task.isOverdue) return false;
+    // Task yang sudah diselesaikan hari ini
+    if (task.isCompleted && task.completedAt != null) {
+      return task.completedAt!.year == now.year &&
+          task.completedAt!.month == now.month &&
+          task.completedAt!.day == now.day;
+    }
+    // Task yang due hari ini dan belum selesai
+    if (!task.isCompleted && task.dueDate != null && !task.isOverdue) {
+      return task.dueDate!.year == now.year &&
+          task.dueDate!.month == now.month &&
+          task.dueDate!.day == now.day;
+    }
+    return false;
+  }).toList();
+});
 
-    return task.dueDate!.year == now.year &&
-        task.dueDate!.month == now.month &&
-        task.dueDate!.day == now.day;
+// Provider untuk task yang sudah completed hari ini saja
+final completedTodayTasksProvider = Provider<List<TaskModel>>((ref) {
+  final tasks = ref.watch(taskProvider);
+  final now = DateTime.now();
+  return tasks.where((task) {
+    if (!task.isCompleted || task.completedAt == null) return false;
+    return task.completedAt!.year == now.year &&
+        task.completedAt!.month == now.month &&
+        task.completedAt!.day == now.day;
   }).toList();
 });
 

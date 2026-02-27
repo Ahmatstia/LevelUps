@@ -160,6 +160,8 @@ enum QuadrantType {
 
 @HiveType(typeId: 3)
 class TaskModel {
+  // Sentinel object untuk membedakan 'tidak di-set' vs 'di-set ke null' di copyWith
+  static const Object _sentinel = Object();
   @HiveField(0)
   final String id;
 
@@ -257,7 +259,8 @@ class TaskModel {
     StatType? statType,
     bool? isCompleted,
     DateTime? createdAt,
-    DateTime? completedAt,
+    Object? completedAt =
+        _sentinel, // Menggunakan sentinel agar bisa di-set ke null
     DateTime? dueDate,
     RecurringType? recurringType,
     EnergyLevel? energyLevel,
@@ -273,7 +276,9 @@ class TaskModel {
       statType: statType ?? this.statType,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
-      completedAt: completedAt ?? this.completedAt,
+      completedAt: completedAt == _sentinel
+          ? this.completedAt
+          : completedAt as DateTime?,
       dueDate: dueDate ?? this.dueDate,
       recurringType: recurringType ?? this.recurringType,
       energyLevel: energyLevel ?? this.energyLevel,

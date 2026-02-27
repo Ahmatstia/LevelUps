@@ -29,11 +29,13 @@ class GamificationEngine {
       if (!quest.isCompleted) {
         bool justCompleted = false;
 
-        if (quest.title.contains('Complete') && quest.title.contains('tasks')) {
+        // Routing berdasarkan targetStat — lebih robust daripada string title matching
+        if (quest.targetStat == 'tasks') {
+          // Semua quest yang butuh menyelesaikan task (daily complete, weekly warrior, dll)
           justCompleted = questNotifier.updateProgress(quest.id, 1);
-        }
-        if (quest.title == 'Focus Mode' &&
+        } else if (quest.targetStat == 'hard_tasks' &&
             task.difficulty == TaskDifficulty.hard) {
+          // Quest yang butuh task sulit (Focus Mode, dll)
           justCompleted = questNotifier.updateProgress(quest.id, 1);
         }
 
