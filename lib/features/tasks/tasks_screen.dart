@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/task_provider.dart';
 import '../../core/models/task_model.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/services/sfx_service.dart';
 import '../../core/widgets/xp_floating_text.dart';
 import 'widgets/add_task_bottom_sheet.dart';
@@ -30,29 +30,26 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     final l10n = ref.watch(l10nProvider);
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         title: Text(
           l10n.get('nav_tasks'),
-          style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 18),
         ),
         actions: [
           IconButton(
             icon: Icon(
               Icons.refresh,
-              color: GameTheme.neonCyan.withValues(alpha: 0.7),
-              size: 20,
+              color: AppTheme.primary,
+              size: 24,
             ),
             onPressed: () {
               ref.invalidate(taskProvider);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  backgroundColor: GameTheme.surface,
+                  backgroundColor: AppTheme.surface,
                   content: Text(
                     'Tasks refreshed',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppTheme.primaryDark),
                   ),
                   duration: const Duration(seconds: 1),
                 ),
@@ -91,8 +88,15 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(color: Colors.white12, width: 1.5),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: List.generate(tabs.length, (i) {
@@ -103,26 +107,24 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: isSelected
-                    ? BoxDecoration(
-                        color: GameTheme.neonCyan.withValues(alpha: 0.15),
-                        border: Border.all(
-                          color: GameTheme.neonCyan,
-                          width: 1.5,
-                        ),
-                      )
-                    : null,
+                    decoration: isSelected
+                        ? BoxDecoration(
+                            color: AppTheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          )
+                        : null,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       tabs[i].$1,
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        fontSize: 9,
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                         color: isSelected
-                            ? GameTheme.neonCyan
+                            ? AppTheme.primary
                             : Colors.grey[600],
-                        letterSpacing: 1,
+                        letterSpacing: 0.5,
                       ),
                     ),
                     if (tabs[i].$2 > 0) ...[
@@ -134,16 +136,17 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? GameTheme.neonCyan
-                              : Colors.grey[700],
+                              ? AppTheme.primary
+                              : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           tabs[i].$2.toString(),
-                          style: TextStyle(
+                          style: AppTheme.textTheme.bodySmall?.copyWith(
                             fontSize: 8,
                             color: isSelected
-                                ? GameTheme.background
-                                : Colors.white,
+                                ? Colors.white
+                                : Colors.grey[700],
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -169,8 +172,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(color: Colors.white10, width: 1),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 2,
+          ),
+        ],
       ),
       child: Row(
         children: [_subTab(label1, count1, 0), _subTab(label2, count2, 1)],
@@ -186,16 +195,20 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 8),
-          color: isSelected
-              ? GameTheme.neonPink.withValues(alpha: 0.15)
-              : Colors.transparent,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppTheme.accent.withOpacity(0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Center(
             child: Text(
               count > 0 ? '$label ($count)' : label,
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                fontSize: 9,
-                color: isSelected ? GameTheme.neonPink : Colors.grey[600],
-                letterSpacing: 0.8,
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? AppTheme.accent : Colors.grey[500],
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -219,22 +232,25 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           const SizedBox(height: 8),
           Text(
             _getTodayDate(),
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: GameTheme.neonCyan.withValues(alpha: 0.6),
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: AppTheme.primary,
               letterSpacing: 1,
-              fontSize: 8,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'MISSION LOG',
-            style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 14),
+            style: AppTheme.textTheme.titleMedium?.copyWith(
+              color: AppTheme.primaryDark,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 20),
 
           // ── Overdue Tasks
           if (overdueTasks.isNotEmpty) ...[
-            _buildSectionHeader('⚠  OVERDUE', GameTheme.hpRed),
+            _buildSectionHeader('⚠  OVERDUE', AppTheme.hpRed),
             const SizedBox(height: 8),
             ...overdueTasks.asMap().entries.map(
               (e) => _buildTaskCard(e.value, isOverdue: true)
@@ -247,7 +263,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
           // ── Today Tasks
           if (todayTasks.isNotEmpty) ...[
-            _buildSectionHeader('►  ACTIVE QUESTS', GameTheme.neonCyan),
+            _buildSectionHeader('ACTIVE QUESTS', AppTheme.primary),
             const SizedBox(height: 8),
             ...todayTasks.asMap().entries.map(
               (e) => _buildTaskCard(e.value)
@@ -311,10 +327,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                 .map(
                   (line) => Text(
                     line,
-                    style: GameTheme.textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[700],
-                      fontSize: 10,
-                      letterSpacing: 1.5,
+                    style: AppTheme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[500],
+                      letterSpacing: 0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -340,29 +355,26 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
   Widget _buildTaskCard(TaskModel task, {bool isOverdue = false}) {
     final borderColor = isOverdue
-        ? GameTheme.hpRed
+        ? AppTheme.hpRed.withOpacity(0.5)
         : task.isCompleted
-        ? GameTheme.staminaGreen
-        : GameTheme.neonCyan.withValues(alpha: 0.3);
+        ? AppTheme.staminaGreen.withOpacity(0.5)
+        : Colors.transparent;
 
-    final glowColor = isOverdue
-        ? GameTheme.hpRed
-        : task.isCompleted
-        ? GameTheme.staminaGreen
-        : GameTheme.neonCyan;
+    final bgColor = task.isCompleted ? AppTheme.background : AppTheme.surface;
 
     return Container(
       key: ValueKey(task.id),
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(color: borderColor, width: 1.5),
-        boxShadow: [
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: task.isCompleted ? [] : [
           BoxShadow(
-            color: glowColor.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
-            spreadRadius: 1,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -380,24 +392,19 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
               children: [
                 Text(
                   task.title,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
+                  style: AppTheme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: task.isCompleted ? Colors.grey[600] : Colors.white,
+                    color: task.isCompleted ? Colors.grey[400] : AppTheme.primaryDark,
                     decoration: task.isCompleted
                         ? TextDecoration.lineThrough
                         : null,
-                    decorationColor: Colors.grey[600],
                   ),
                 ),
                 if (task.description.isNotEmpty) ...[
                   const SizedBox(height: 3),
                   Text(
                     task.description,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
+                    style: AppTheme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey[500],
                       decoration: task.isCompleted
                           ? TextDecoration.lineThrough
@@ -420,18 +427,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: GameTheme.goldYellow.withValues(alpha: 0.1),
-                  border: Border.all(
-                    color: GameTheme.goldYellow.withValues(alpha: 0.5),
-                  ),
+                  color: AppTheme.goldYellow.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '+${task.difficulty.xpValue} XP',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 10,
+                  style: AppTheme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: GameTheme.goldYellow,
+                    color: AppTheme.goldYellow,
                   ),
                 ),
               ),
@@ -441,8 +444,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   onTap: () => _deleteTask(task.id),
                   child: Icon(
                     Icons.delete_outline,
-                    color: Colors.grey[700],
-                    size: 18,
+                    color: AppTheme.hpRed.withOpacity(0.7),
+                    size: 20,
                   ),
                 ),
               ],
@@ -455,10 +458,10 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
 
   Widget _buildActionButton(TaskModel task, bool isOverdue) {
     final color = isOverdue
-        ? GameTheme.hpRed
+        ? AppTheme.hpRed
         : task.isCompleted
-        ? GameTheme.staminaGreen
-        : GameTheme.neonCyan;
+        ? AppTheme.staminaGreen
+        : AppTheme.primary;
 
     return Builder(
       builder: (ctx) {
@@ -470,20 +473,13 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             height: 32,
             decoration: BoxDecoration(
               color: task.isCompleted
-                  ? color.withValues(alpha: 0.2)
+                  ? color.withOpacity(0.1)
                   : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: color,
-                width: task.isCompleted ? 2 : 1.5,
+                color: color.withOpacity(0.5),
+                width: 2,
               ),
-              boxShadow: task.isCompleted
-                  ? [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                      ),
-                    ]
-                  : null,
             ),
             child: task.isCompleted
                 ? Icon(Icons.check, color: color, size: 18)
@@ -522,16 +518,16 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontFamily: 'Inter',
+        style: AppTheme.textTheme.bodySmall?.copyWith(
           fontSize: 9,
+          fontWeight: FontWeight.bold,
           color: color,
-          letterSpacing: 0.5,
         ),
       ),
     );
@@ -542,15 +538,15 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       children: [
         Text(
           title,
-          style: GameTheme.textTheme.bodySmall?.copyWith(
+          style: AppTheme.textTheme.bodySmall?.copyWith(
             color: color,
-            fontSize: 9,
-            letterSpacing: 2,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Container(height: 1, color: color.withValues(alpha: 0.3)),
+          child: Container(height: 1, color: color.withOpacity(0.2)),
         ),
       ],
     );
@@ -561,8 +557,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(color: Colors.white12, width: 1.5),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -570,19 +572,16 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
           const SizedBox(height: 16),
           Text(
             'NO MISSIONS TODAY',
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: Colors.white70,
-              fontSize: 12,
-              letterSpacing: 2,
+            style: AppTheme.textTheme.bodyMedium?.copyWith(
+              color: Colors.grey[500],
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'REST, OR START A NEW QUEST',
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-              fontSize: 8,
-              letterSpacing: 1.5,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[400],
             ),
           ),
           const SizedBox(height: 20),
@@ -591,15 +590,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: GameTheme.goldYellow.withValues(alpha: 0.1),
-                border: Border.all(color: GameTheme.goldYellow, width: 2),
+                color: AppTheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '[ + NEW QUEST ]',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: GameTheme.goldYellow,
-                  fontSize: 10,
-                  letterSpacing: 2,
+                '+ NEW QUEST',
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -615,27 +613,27 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: GameTheme.goldYellow,
+          color: AppTheme.primary,
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: GameTheme.goldYellow.withValues(alpha: 0.5),
-              blurRadius: 16,
-              spreadRadius: 2,
+              color: AppTheme.primary.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.add, color: Colors.black, size: 20),
+            const Icon(Icons.add, color: Colors.white, size: 20),
             const SizedBox(width: 8),
             Text(
               'NEW QUEST',
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                color: Colors.black,
-                fontSize: 10,
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
+                letterSpacing: 1.2,
               ),
             ),
           ],
@@ -667,7 +665,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: GameTheme.hpRed,
+            backgroundColor: AppTheme.hpRed,
           ),
         );
       }
@@ -682,7 +680,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: GameTheme.hpRed,
+            backgroundColor: AppTheme.hpRed,
           ),
         );
       }
@@ -737,47 +735,47 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
   }
 
   Color _getDueDateColor(TaskModel task) {
-    if (task.isCompleted) return GameTheme.staminaGreen;
-    if (task.isOverdue) return GameTheme.hpRed;
+    if (task.isCompleted) return AppTheme.staminaGreen;
+    if (task.isOverdue) return AppTheme.hpRed;
     final timeLeft = task.timeLeft;
     if (timeLeft == null) return Colors.grey;
     if (timeLeft.inHours < 6) return Colors.orange;
-    if (timeLeft.inHours < 24) return GameTheme.goldYellow;
+    if (timeLeft.inHours < 24) return AppTheme.goldYellow;
     return Colors.grey[600]!;
   }
 
   Color _getEnergyColor(EnergyLevel level) {
     switch (level) {
       case EnergyLevel.low:
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
       case EnergyLevel.medium:
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
       case EnergyLevel.high:
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
     }
   }
 
   Color _getStatColor(StatType stat) {
     switch (stat) {
       case StatType.intelligence:
-        return GameTheme.manaBlue;
+        return AppTheme.manaBlue;
       case StatType.discipline:
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
       case StatType.health:
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
       case StatType.wealth:
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
     }
   }
 
   Color _getDifficultyColor(TaskDifficulty difficulty) {
     switch (difficulty) {
       case TaskDifficulty.easy:
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
       case TaskDifficulty.medium:
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
       case TaskDifficulty.hard:
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
     }
   }
 }

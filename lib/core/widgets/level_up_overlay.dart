@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../theme/game_theme.dart';
+import '../theme/app_theme.dart';
 import '../services/sfx_service.dart';
 
 /// Full-screen overlay shown when the player levels up.
@@ -75,10 +75,10 @@ class _LevelUpOverlayState extends State<LevelUpOverlay> {
                 numberOfParticles: 20,
                 gravity: 0.1,
                 colors: const [
-                  GameTheme.neonCyan,
-                  GameTheme.goldYellow,
-                  GameTheme.neonPink,
-                  GameTheme.staminaGreen,
+                  AppTheme.primary,
+                  AppTheme.goldYellow,
+                  AppTheme.accent,
+                  AppTheme.staminaGreen,
                   Colors.white,
                 ],
               ),
@@ -92,11 +92,8 @@ class _LevelUpOverlayState extends State<LevelUpOverlay> {
                   // Star burst icon
                   const Icon(
                         Icons.auto_awesome,
-                        color: GameTheme.goldYellow,
+                        color: AppTheme.goldYellow,
                         size: 72,
-                        shadows: [
-                          Shadow(color: GameTheme.goldYellow, blurRadius: 30),
-                        ],
                       )
                       .animate(onPlay: (c) => c.repeat())
                       .shimmer(duration: 800.ms, color: Colors.white)
@@ -105,25 +102,13 @@ class _LevelUpOverlayState extends State<LevelUpOverlay> {
 
                   const SizedBox(height: 32),
 
-                  // "LEVEL UP!" blinking neon text
                   Text(
                         'LEVEL UP!',
-                        style:
-                            GameTheme.neonTextStyle(
-                              GameTheme.neonCyan,
-                              fontSize: 36,
-                            ).copyWith(
-                              shadows: [
-                                const Shadow(
-                                  color: GameTheme.neonCyan,
-                                  blurRadius: 20,
-                                ),
-                                const Shadow(
-                                  color: GameTheme.neonCyan,
-                                  blurRadius: 40,
-                                ),
-                              ],
-                            ),
+                        style: AppTheme.textTheme.displayLarge?.copyWith(
+                          color: AppTheme.primary,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                        ),
                       )
                       .animate(onPlay: (c) => c.repeat(reverse: true))
                       .fadeIn(duration: 300.ms)
@@ -132,20 +117,20 @@ class _LevelUpOverlayState extends State<LevelUpOverlay> {
 
                   const SizedBox(height: 20),
 
-                  // Level badge
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
+                      horizontal: 40,
+                      vertical: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: GameTheme.surface,
-                      border: Border.all(color: GameTheme.goldYellow, width: 3),
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: GameTheme.goldYellow.withValues(alpha: 0.4),
+                          color: AppTheme.primary.withOpacity(0.15),
                           blurRadius: 20,
                           spreadRadius: 4,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -153,17 +138,18 @@ class _LevelUpOverlayState extends State<LevelUpOverlay> {
                       children: [
                         Text(
                           'LEVEL',
-                          style: GameTheme.textTheme.bodySmall?.copyWith(
-                            color: GameTheme.goldYellow,
+                          style: AppTheme.textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.primary,
                             letterSpacing: 4,
-                            fontSize: 10,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           widget.newLevel.toString(),
-                          style: GameTheme.neonTextStyle(
-                            GameTheme.goldYellow,
+                          style: AppTheme.textTheme.displayLarge?.copyWith(
+                            color: AppTheme.primary,
                             fontSize: 56,
                           ),
                         ),
@@ -179,9 +165,8 @@ class _LevelUpOverlayState extends State<LevelUpOverlay> {
 
                   Text(
                         'TAP TO CONTINUE',
-                        style: GameTheme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[500],
-                          fontSize: 8,
+                        style: AppTheme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white70,
                           letterSpacing: 2,
                         ),
                       )

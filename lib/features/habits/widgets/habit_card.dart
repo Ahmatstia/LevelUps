@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/models/habit_model.dart';
-import '../../../core/theme/game_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class HabitCard extends StatelessWidget {
   final HabitModel habit;
@@ -18,13 +18,13 @@ class HabitCard extends StatelessWidget {
   Color get _statColor {
     switch (habit.statType) {
       case 'intelligence':
-        return GameTheme.manaBlue;
+        return AppTheme.manaBlue;
       case 'health':
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
       case 'wealth':
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
       default:
-        return GameTheme.staminaGreen; // discipline
+        return AppTheme.staminaGreen; // discipline
     }
   }
 
@@ -45,21 +45,23 @@ class HabitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDone = habit.isCheckedInToday;
     final borderColor = isDone
-        ? GameTheme.staminaGreen.withValues(alpha: 0.5)
-        : _statColor.withValues(alpha: 0.3);
+        ? AppTheme.staminaGreen.withOpacity(0.5)
+        : Colors.transparent;
+        
+    final bgColor = isDone ? AppTheme.background : AppTheme.surface;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(color: borderColor, width: 1.5),
-        boxShadow: [
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: isDone ? [] : [
           BoxShadow(
-            color: (isDone ? GameTheme.staminaGreen : _statColor).withValues(
-              alpha: 0.07,
-            ),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -70,8 +72,8 @@ class HabitCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _statColor.withValues(alpha: 0.1),
-              border: Border.all(color: _statColor.withValues(alpha: 0.5)),
+              color: _statColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(_statIcon, color: _statColor, size: 20),
           ),
@@ -84,13 +86,10 @@ class HabitCard extends StatelessWidget {
               children: [
                 Text(
                   habit.title,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 13,
+                  style: AppTheme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: isDone ? Colors.grey[600] : Colors.white,
+                    color: isDone ? Colors.grey[400] : AppTheme.primaryDark,
                     decoration: isDone ? TextDecoration.lineThrough : null,
-                    decorationColor: Colors.grey[600],
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -103,25 +102,22 @@ class HabitCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: GameTheme.goldYellow.withValues(alpha: 0.1),
-                        border: Border.all(
-                          color: GameTheme.goldYellow.withValues(alpha: 0.4),
-                        ),
+                        color: AppTheme.goldYellow.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         children: [
                           const Icon(
                             Icons.local_fire_department,
                             size: 10,
-                            color: GameTheme.goldYellow,
+                            color: AppTheme.goldYellow,
                           ),
                           const SizedBox(width: 3),
                           Text(
                             '${habit.currentStreak}',
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 9,
-                              color: GameTheme.goldYellow,
+                            style: AppTheme.textTheme.bodySmall?.copyWith(
+                              fontSize: 10,
+                              color: AppTheme.goldYellow,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -132,10 +128,9 @@ class HabitCard extends StatelessWidget {
                     // XP reward
                     Text(
                       '+${habit.xpReward} XP',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 9,
-                        color: GameTheme.goldYellow,
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        color: AppTheme.goldYellow,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -143,10 +138,10 @@ class HabitCard extends StatelessWidget {
                     // Frequency
                     Text(
                       habit.frequency.displayName.toUpperCase(),
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 8,
-                        color: Colors.grey[600],
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 9,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -160,9 +155,8 @@ class HabitCard extends StatelessWidget {
           if (isDone)
             Icon(
               Icons.check_circle,
-              color: GameTheme.staminaGreen,
+              color: AppTheme.staminaGreen,
               size: 28,
-              shadows: [Shadow(color: GameTheme.staminaGreen, blurRadius: 8)],
             ).animate().scale(duration: 300.ms, curve: Curves.elasticOut)
           else
             GestureDetector(
@@ -171,14 +165,12 @@ class HabitCard extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: _statColor.withValues(alpha: 0.15),
-                  border: Border.all(color: _statColor, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _statColor.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  color: isDone ? _statColor.withOpacity(0.1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: _statColor.withOpacity(0.5), 
+                    width: 2
+                  ),
                 ),
                 child: Icon(Icons.check, color: _statColor, size: 20),
               ),
@@ -191,8 +183,8 @@ class HabitCard extends StatelessWidget {
             onTap: () => _confirmDelete(context),
             child: Icon(
               Icons.delete_outline,
-              color: Colors.grey[700],
-              size: 18,
+              color: AppTheme.hpRed.withOpacity(0.6),
+              size: 20,
             ),
           ),
         ],
@@ -204,27 +196,36 @@ class HabitCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: const RoundedRectangleBorder(),
+        backgroundColor: AppTheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Delete Habit?',
-          style: GameTheme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+          style: AppTheme.textTheme.titleMedium?.copyWith(
+            color: AppTheme.primaryDark,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
           'This will delete "${habit.title}" permanently.',
-          style: GameTheme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
+          style: AppTheme.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL', style: TextStyle(color: Colors.grey)),
+            child: Text(
+              'CANCEL', 
+              style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold)
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               onDelete();
             },
-            child: Text('DELETE', style: TextStyle(color: GameTheme.hpRed)),
+            child: Text(
+              'DELETE', 
+              style: TextStyle(color: AppTheme.hpRed, fontWeight: FontWeight.bold)
+            ),
           ),
         ],
       ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/note_provider.dart';
 import '../../core/models/note_model.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import 'widgets/add_note_bottom_sheet.dart';
 import 'widgets/note_detail_screen.dart';
 
@@ -30,13 +30,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     final filteredNotes = _filterNotes(notes);
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         title: Text(
           'NOTES',
-          style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 16),
         ),
       ),
       body: Column(
@@ -46,30 +43,33 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             child: Container(
               decoration: BoxDecoration(
-                color: GameTheme.surface,
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: GameTheme.neonCyan.withValues(alpha: 0.2),
-                  width: 1.5,
+                  color: Colors.transparent,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  color: Colors.white,
-                  fontSize: 13,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.black87,
                 ),
                 decoration: InputDecoration(
                   hintText: 'SEARCH LOGS...',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.grey[700],
-                    fontSize: 12,
+                  hintStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[500],
                     letterSpacing: 1,
                   ),
                   prefixIcon: Icon(
                     Icons.search,
-                    color: GameTheme.neonCyan.withValues(alpha: 0.5),
+                    color: AppTheme.primary,
                     size: 20,
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
@@ -105,23 +105,10 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         ],
       ),
       floatingActionButton: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: GameTheme.goldYellow.withValues(alpha: 0.3),
-              blurRadius: 12,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
         child: FloatingActionButton(
           onPressed: _showAddNoteSheet,
-          backgroundColor: GameTheme.goldYellow,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: const BorderSide(color: Colors.black87, width: 2),
-          ),
-          child: const Icon(Icons.add, color: Colors.black, size: 24),
+          backgroundColor: AppTheme.primary,
+          child: const Icon(Icons.add, color: Colors.white, size: 24),
         ),
       ),
     );
@@ -144,30 +131,22 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           Icon(
             Icons.note_alt_outlined,
             size: 56,
-            color: GameTheme.neonCyan.withValues(alpha: 0.3),
-            shadows: [
-              Shadow(
-                color: GameTheme.neonCyan.withValues(alpha: 0.2),
-                blurRadius: 12,
-              ),
-            ],
+            color: AppTheme.primary.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
             'NO LOGS YET',
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: Colors.grey[700],
-              fontSize: 10,
-              letterSpacing: 2,
+            style: AppTheme.textTheme.bodyMedium?.copyWith(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'TAP + TO CREATE YOUR FIRST LOG',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 10,
-              color: Colors.grey[700],
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[500],
               letterSpacing: 0.5,
             ),
           ),
@@ -203,15 +182,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: GameTheme.surface,
-                  border: Border.all(
-                    color: GameTheme.neonCyan.withValues(alpha: 0.15),
-                    width: 1.5,
-                  ),
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: GameTheme.neonCyan.withValues(alpha: 0.06),
-                      blurRadius: 6,
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -221,10 +198,9 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                     // Title
                     Text(
                       note.title.toUpperCase(),
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        fontSize: 9,
+                      style: AppTheme.textTheme.bodyMedium?.copyWith(
                         letterSpacing: 0.5,
-                        color: Colors.white,
+                        color: Colors.black87,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -237,17 +213,15 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: GameTheme.neonCyan.withValues(alpha: 0.08),
-                        border: Border.all(
-                          color: GameTheme.neonCyan.withValues(alpha: 0.2),
-                        ),
+                        color: AppTheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         date,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 8,
-                          color: GameTheme.neonCyan.withValues(alpha: 0.7),
+                        style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -256,10 +230,8 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                     // Preview content
                     Text(
                       note.content,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        color: Colors.grey[500],
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
@@ -275,15 +247,13 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: GameTheme.hpRed.withValues(alpha: 0.1),
-                              border: Border.all(
-                                color: GameTheme.hpRed.withValues(alpha: 0.3),
-                              ),
+                              color: AppTheme.hpRed.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               Icons.delete_outline,
-                              color: GameTheme.hpRed.withValues(alpha: 0.7),
-                              size: 14,
+                              color: AppTheme.hpRed,
+                              size: 16,
                             ),
                           ),
                         ),
@@ -318,24 +288,21 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: const RoundedRectangleBorder(
-          side: BorderSide(color: GameTheme.hpRed, width: 1.5),
+        backgroundColor: AppTheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
         title: Text(
           'DELETE LOG',
-          style: GameTheme.textTheme.bodySmall?.copyWith(
-            color: GameTheme.hpRed,
-            fontSize: 10,
-            letterSpacing: 2,
+          style: AppTheme.textTheme.titleMedium?.copyWith(
+            color: AppTheme.hpRed,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to delete this log?',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            color: Colors.white70,
-            fontSize: 13,
+          style: AppTheme.textTheme.bodyMedium?.copyWith(
+            color: Colors.grey[600],
           ),
         ),
         actions: [
@@ -343,21 +310,20 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: Text(
               'CANCEL',
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                fontSize: 8,
-                color: Colors.grey[500],
+              style: AppTheme.textTheme.bodyMedium?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: GameTheme.hpRed),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.hpRed),
             child: Text(
               'DELETE',
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                fontSize: 8,
-                color: GameTheme.hpRed,
-                letterSpacing: 1,
+              style: AppTheme.textTheme.bodyMedium?.copyWith(
+                color: AppTheme.hpRed,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -371,13 +337,11 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: GameTheme.surface,
+              backgroundColor: AppTheme.surface,
               content: Text(
                 'LOG DELETED',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: GameTheme.goldYellow,
-                  fontSize: 12,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.black87,
                 ),
               ),
               duration: const Duration(seconds: 1),
@@ -389,7 +353,7 @@ class _NotesScreenState extends ConsumerState<NotesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: $e'),
-              backgroundColor: GameTheme.hpRed,
+              backgroundColor: AppTheme.hpRed,
             ),
           );
         }

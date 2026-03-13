@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/providers/quest_provider.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/rpg_status_bar.dart';
 
 class QuestsView extends ConsumerWidget {
@@ -31,10 +31,10 @@ class QuestsView extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               'NO ACTIVE QUESTS',
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[700],
-                fontSize: 10,
-                letterSpacing: 2,
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[500],
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
               ),
             ),
           ],
@@ -53,23 +53,24 @@ class QuestsView extends ConsumerWidget {
         );
         final isDone = quest.isCompleted;
         final accentColor = isDone
-            ? GameTheme.staminaGreen
-            : GameTheme.neonPink;
+            ? AppTheme.staminaGreen
+            : AppTheme.primary;
 
         return Container(
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: GameTheme.surface,
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: accentColor.withValues(alpha: isDone ? 0.5 : 0.3),
-                  width: 1.5,
+                  color: isDone ? accentColor.withOpacity(0.3) : Colors.transparent,
+                  width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: accentColor.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    spreadRadius: 1,
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -81,19 +82,8 @@ class QuestsView extends ConsumerWidget {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.1),
-                      border: Border.all(
-                        color: accentColor.withValues(alpha: 0.4),
-                        width: 1.5,
-                      ),
-                      boxShadow: isDone
-                          ? [
-                              BoxShadow(
-                                color: accentColor.withValues(alpha: 0.3),
-                                blurRadius: 10,
-                              ),
-                            ]
-                          : null,
+                      color: accentColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       isDone ? Icons.check : Icons.assignment_outlined,
@@ -112,17 +102,15 @@ class QuestsView extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 quest.title,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: isDone
-                                      ? Colors.grey[500]
-                                      : Colors.white,
-                                  decoration: isDone
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                ),
+                                  style: AppTheme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: isDone
+                                        ? Colors.grey[400]
+                                        : AppTheme.primaryDark,
+                                    decoration: isDone
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -132,23 +120,15 @@ class QuestsView extends ConsumerWidget {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: GameTheme.goldYellow.withValues(
-                                  alpha: 0.1,
-                                ),
-                                border: Border.all(
-                                  color: GameTheme.goldYellow.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                ),
+                                color: AppTheme.goldYellow.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 '+${quest.xpReward} XP',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: GameTheme.goldYellow,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                  style: AppTheme.textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.goldYellow,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                               ),
                             ),
                           ],
@@ -156,10 +136,8 @@ class QuestsView extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           quest.description,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
+                          style: AppTheme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey[500],
-                            fontSize: 11,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -172,19 +150,17 @@ class QuestsView extends ConsumerWidget {
                                 value: progress,
                                 barColor: accentColor,
                                 height: 12,
-                                segments: quest.targetValue.clamp(2, 10),
+                                  segments: 1,
                                 animate: !isDone,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Text(
                               '${quest.currentValue}/${quest.targetValue}',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: accentColor,
-                              ),
+                                style: AppTheme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: accentColor,
+                                ),
                             ),
                           ],
                         ),
@@ -201,11 +177,10 @@ class QuestsView extends ConsumerWidget {
                               const SizedBox(width: 4),
                               Text(
                                 '${l10n.get('quest_expires')} ${DateFormat('MMM dd, hh:mm a').format(quest.expiresAt!)}',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 9,
-                                  color: Colors.red[300],
-                                ),
+                                  style: AppTheme.textTheme.bodySmall?.copyWith(
+                                    fontSize: 10,
+                                    color: Colors.red[300],
+                                  ),
                               ),
                             ],
                           ),

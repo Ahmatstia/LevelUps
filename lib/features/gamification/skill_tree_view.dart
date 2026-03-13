@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/skill_tree_provider.dart';
 import '../../core/models/skill_node_model.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 
 class SkillTreeView extends ConsumerWidget {
   const SkillTreeView({super.key});
@@ -24,10 +24,10 @@ class SkillTreeView extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               'NO SKILLS AVAILABLE',
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[700],
-                fontSize: 10,
-                letterSpacing: 2,
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[500],
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
               ),
             ),
           ],
@@ -60,17 +60,16 @@ class SkillTreeView extends ConsumerWidget {
                 children: [
                   Text(
                     '$statName ${l10n.get('rpg_tab_skills').toUpperCase()}',
-                    style: GameTheme.textTheme.bodySmall?.copyWith(
-                      fontSize: 8,
+                    style: AppTheme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
                       color: headerColor,
-                      letterSpacing: 3,
+                      letterSpacing: 2,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Container(
-                      height: 1,
-                      color: headerColor.withValues(alpha: 0.3),
+                      color: headerColor.withOpacity(0.2),
                     ),
                   ),
                 ],
@@ -89,15 +88,15 @@ class SkillTreeView extends ConsumerWidget {
   Color _getStatColor(String statName) {
     switch (statName) {
       case 'INTELLIGENCE':
-        return GameTheme.manaBlue;
+        return AppTheme.manaBlue;
       case 'DISCIPLINE':
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
       case 'HEALTH':
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
       case 'WEALTH':
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
       default:
-        return GameTheme.neonCyan;
+        return AppTheme.primary;
     }
   }
 
@@ -114,7 +113,7 @@ class SkillTreeView extends ConsumerWidget {
       if (!success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: GameTheme.surface,
+            backgroundColor: AppTheme.surface,
             content: Text(
               l10n.get('skill_req_not_met'),
               style: const TextStyle(color: Colors.white),
@@ -127,33 +126,32 @@ class SkillTreeView extends ConsumerWidget {
     final isMaxed = skill.isMaxed;
     final isUnlocked = skill.isUnlocked;
     final accentColor = isMaxed
-        ? GameTheme.goldYellow
+        ? AppTheme.goldYellow
         : isUnlocked
-        ? GameTheme.neonCyan
-        : Colors.grey[700]!;
+        ? AppTheme.primary
+        : Colors.grey[400]!;
 
     return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: GameTheme.surface,
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isMaxed
-                  ? GameTheme.goldYellow.withValues(alpha: 0.6)
+                  ? AppTheme.goldYellow.withOpacity(0.4)
                   : isUnlocked
-                  ? GameTheme.neonCyan.withValues(alpha: 0.3)
-                  : Colors.white12,
-              width: isUnlocked ? 1.5 : 1.0,
+                  ? AppTheme.primary.withOpacity(0.3)
+                  : Colors.transparent,
+              width: isUnlocked ? 1.5 : 0,
             ),
-            boxShadow: isUnlocked || isMaxed
-                ? [
-                    BoxShadow(
-                      color: accentColor.withValues(alpha: 0.12),
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -162,19 +160,8 @@ class SkillTreeView extends ConsumerWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
-                  border: Border.all(
-                    color: accentColor.withValues(alpha: 0.4),
-                    width: 1.5,
-                  ),
-                  boxShadow: isUnlocked || isMaxed
-                      ? [
-                          BoxShadow(
-                            color: accentColor.withValues(alpha: 0.25),
-                            blurRadius: 8,
-                          ),
-                        ]
-                      : null,
+                  color: accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   isMaxed
@@ -184,9 +171,6 @@ class SkillTreeView extends ConsumerWidget {
                       : Icons.lock_outline,
                   color: accentColor,
                   size: 22,
-                  shadows: isUnlocked || isMaxed
-                      ? [Shadow(color: accentColor, blurRadius: 10)]
-                      : null,
                 ),
               ),
               const SizedBox(width: 14),
@@ -202,13 +186,12 @@ class SkillTreeView extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             skill.name.toUpperCase(),
-                            style: GameTheme.textTheme.bodySmall?.copyWith(
-                              fontSize: 9,
-                              letterSpacing: 0.5,
+                            style: AppTheme.textTheme.bodyMedium?.copyWith(
                               color: isUnlocked
-                                  ? Colors.white
-                                  : Colors.grey[600],
+                                  ? AppTheme.primaryDark
+                                  : Colors.grey[500],
                               fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
@@ -218,16 +201,12 @@ class SkillTreeView extends ConsumerWidget {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.1),
-                            border: Border.all(
-                              color: accentColor.withValues(alpha: 0.4),
-                            ),
+                            color: accentColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             'LV ${skill.currentLevel}/${skill.maxLevel}',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 8,
+                            style: AppTheme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: accentColor,
                             ),
@@ -238,10 +217,8 @@ class SkillTreeView extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       skill.description,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        color: Colors.grey[500],
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
                       ),
                     ),
                     if (!skill.isMaxed) ...[
@@ -251,16 +228,14 @@ class SkillTreeView extends ConsumerWidget {
                           Icon(
                             Icons.stars,
                             size: 12,
-                            color: GameTheme.goldYellow,
+                            color: AppTheme.goldYellow,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${l10n.get('skill_cost')}: ${skill.currentCost} SP',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 10,
-                              color: GameTheme.goldYellow,
-                              fontWeight: FontWeight.w500,
+                            style: AppTheme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.goldYellow,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -281,34 +256,25 @@ class SkillTreeView extends ConsumerWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: GameTheme.neonCyan.withValues(alpha: 0.15),
+                      color: isUnlocked ? AppTheme.primary : AppTheme.background,
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isUnlocked
-                            ? GameTheme.neonCyan
-                            : Colors.grey[700]!,
+                            ? AppTheme.primary
+                            : Colors.grey[300]!,
                         width: 1.5,
                       ),
-                      boxShadow: isUnlocked
-                          ? [
-                              BoxShadow(
-                                color: GameTheme.neonCyan.withValues(
-                                  alpha: 0.3,
-                                ),
-                                blurRadius: 8,
-                              ),
-                            ]
-                          : null,
                     ),
                     child: Text(
                       skill.currentLevel == 0
                           ? l10n.get('skill_unlock').toUpperCase()
                           : l10n.get('skill_upgrade').toUpperCase(),
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        fontSize: 8,
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                         letterSpacing: 1,
                         color: isUnlocked
-                            ? GameTheme.neonCyan
-                            : Colors.grey[600],
+                            ? Colors.white
+                            : Colors.grey[500],
                       ),
                     ),
                   ),

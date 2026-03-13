@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/habit_model.dart';
 import '../../../core/providers/habit_provider.dart';
-import '../../../core/theme/game_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class AddHabitDialog extends StatefulWidget {
   const AddHabitDialog({super.key});
@@ -40,13 +40,13 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
   Color _statColor(String stat) {
     switch (stat) {
       case 'intelligence':
-        return GameTheme.manaBlue;
+        return AppTheme.manaBlue;
       case 'health':
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
       case 'wealth':
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
       default:
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
     }
   }
 
@@ -69,10 +69,8 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
             top: 20,
           ),
           decoration: BoxDecoration(
-            color: GameTheme.surface,
-            border: const Border(
-              top: BorderSide(color: GameTheme.staminaGreen, width: 2),
-            ),
+            color: AppTheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -82,9 +80,10 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               Center(
                 child: Text(
                   'NEW HABIT',
-                  style: GameTheme.neonTextStyle(
-                    GameTheme.staminaGreen,
-                    fontSize: 14,
+                  style: AppTheme.textTheme.titleMedium?.copyWith(
+                    color: AppTheme.primaryDark,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
                   ),
                 ),
               ),
@@ -102,10 +101,10 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               // Stat selector
               Text(
                 'STAT',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: GameTheme.staminaGreen,
-                  fontSize: 8,
-                  letterSpacing: 2,
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
                 ),
               ),
               const SizedBox(height: 8),
@@ -122,10 +121,11 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? color.withValues(alpha: 0.15)
-                              : Colors.transparent,
+                              ? color.withOpacity(0.1)
+                              : AppTheme.background,
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? color : Colors.grey[800]!,
+                            color: isSelected ? color : Colors.grey[300]!,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -137,11 +137,11 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                               (s['label'] as String)
                                   .substring(0, 3)
                                   .toUpperCase(),
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 8,
-                                color: isSelected ? color : Colors.grey[600],
-                              ),
+                                style: AppTheme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                  color: isSelected ? color : Colors.grey[600],
+                                ),
                             ),
                           ],
                         ),
@@ -155,10 +155,10 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               // Frequency
               Text(
                 'FREQUENCY',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: GameTheme.staminaGreen,
-                  fontSize: 8,
-                  letterSpacing: 2,
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
                 ),
               ),
               const SizedBox(height: 8),
@@ -176,12 +176,13 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? GameTheme.neonCyan.withValues(alpha: 0.1)
-                              : Colors.transparent,
+                              ? AppTheme.primary.withOpacity(0.1)
+                              : AppTheme.background,
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
-                                ? GameTheme.neonCyan
-                                : Colors.grey[800]!,
+                                ? AppTheme.primary
+                                : Colors.grey[300]!,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -189,22 +190,22 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                           children: [
                             Text(
                               f.displayName.toUpperCase(),
-                              style: TextStyle(
-                                fontFamily: 'PressStart2P',
-                                fontSize: 8,
-                                color: isSelected
-                                    ? GameTheme.neonCyan
-                                    : Colors.grey[600],
-                              ),
+                                style: AppTheme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                  color: isSelected
+                                      ? AppTheme.primary
+                                      : Colors.grey[600],
+                                ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               '+$_xpReward XP',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 8,
-                                color: GameTheme.goldYellow,
-                              ),
+                                style: AppTheme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.goldYellow,
+                                ),
                             ),
                           ],
                         ),
@@ -220,10 +221,12 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: GameTheme.staminaGreen,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: const RoundedRectangleBorder(),
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     elevation: 0,
                   ),
                   onPressed: () async {
@@ -241,8 +244,8 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                   },
                   child: Text(
                     'ADD HABIT',
-                    style: GameTheme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.black,
+                    style: AppTheme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2,
                     ),
@@ -259,31 +262,27 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
   Widget _buildTextField(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
-      style: const TextStyle(
-        fontFamily: 'Inter',
-        fontSize: 14,
-        color: Colors.white,
+      style: AppTheme.textTheme.bodyMedium?.copyWith(
+        color: AppTheme.primaryDark,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 12,
-          color: Colors.grey[600],
+        hintStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+          color: Colors.grey[400],
         ),
         filled: true,
-        fillColor: Colors.black,
+        fillColor: AppTheme.background,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide(color: Colors.grey[800]!),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide(color: Colors.grey[800]!),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.zero,
-          borderSide: BorderSide(color: GameTheme.staminaGreen, width: 2),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,

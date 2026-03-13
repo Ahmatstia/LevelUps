@@ -6,7 +6,7 @@ import '../../core/providers/task_provider.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/models/user_model.dart';
 import '../../core/models/task_model.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/rpg_status_bar.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -25,7 +25,7 @@ class DashboardScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -75,19 +75,18 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 '${l10n.get('dash_greeting').split(' ')[0]} ${user.name}!',
-                style: GameTheme.neonTextStyle(
-                  GameTheme.neonCyan,
-                  fontSize: 18,
+                style: AppTheme.textTheme.displayMedium?.copyWith(
+                  color: AppTheme.primaryDark,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Text(
                 'READY TO CONTINUE?',
-                style: GameTheme.textTheme.bodyMedium?.copyWith(
-                  color: GameTheme.neonPink,
-                  letterSpacing: 1.5,
-                  fontSize: 10,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.accent,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
                 ),
               ),
             ],
@@ -96,25 +95,25 @@ class DashboardScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: GameTheme.goldYellow.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(8), // Blocky game border
-            border: Border.all(color: GameTheme.goldYellow, width: 2),
+            color: AppTheme.goldYellow.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.goldYellow.withOpacity(0.5), width: 1.5),
           ),
           child: Row(
             children: [
               const Icon(
                     Icons.local_fire_department,
                     size: 20,
-                    color: GameTheme.goldYellow,
+                    color: AppTheme.goldYellow,
                   )
                   .animate(onPlay: (controller) => controller.repeat())
                   .shimmer(duration: 1200.ms, color: Colors.white),
               const SizedBox(width: 8),
               Text(
                 '${user.streak}x MULTI',
-                style: GameTheme.textTheme.bodyLarge?.copyWith(
+                style: AppTheme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: GameTheme.goldYellow,
+                  color: AppTheme.goldYellow,
                 ),
               ),
             ],
@@ -128,17 +127,13 @@ class DashboardScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: GameTheme.surface, // Solid dark background
-        borderRadius: BorderRadius.circular(8), // Blocky radius
-        border: Border.all(
-          color: GameTheme.neonCyan.withValues(alpha: 0.5),
-          width: 2,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
-            spreadRadius: 2,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -151,9 +146,8 @@ class DashboardScreen extends ConsumerWidget {
               Flexible(
                 child: Text(
                   '${l10n.get('stats_level')} ${user.level}',
-                  style: GameTheme.neonTextStyle(
-                    GameTheme.neonCyan,
-                    fontSize: 24,
+                  style: AppTheme.textTheme.titleLarge?.copyWith(
+                    color: AppTheme.primaryDark,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -164,45 +158,36 @@ class DashboardScreen extends ConsumerWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: GameTheme.neonPink.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: GameTheme.neonPink),
+                  color: AppTheme.accent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${user.totalXp} XP',
-                  style: GameTheme.textTheme.bodyMedium?.copyWith(
+                  style: AppTheme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppTheme.accent,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          // Blocky RPG Progress Bar
-          Container(
-            height: 16, // Thicker bar
-            decoration: BoxDecoration(
-              color: Colors.black,
-              border: Border.all(color: Colors.white24, width: 2),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: progress,
-              child:
-                  Container(
-                        decoration: BoxDecoration(
-                          color: GameTheme.neonCyan,
-                          boxShadow: [
-                            BoxShadow(
-                              color: GameTheme.neonCyan.withValues(alpha: 0.5),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
-                      )
-                      .animate(onPlay: (controller) => controller.repeat())
-                      .shimmer(duration: 2.seconds, color: Colors.white54),
+          // Clean Progress Bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              height: 8,
+              color: AppTheme.primary.withOpacity(0.1),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -211,15 +196,11 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 '${user.totalXp - (100 * (user.level - 1))} XP',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[400],
-                ),
+                style: AppTheme.textTheme.bodySmall,
               ),
               Text(
                 '${100 * user.level} XP',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[400],
-                ),
+                style: AppTheme.textTheme.bodySmall,
               ),
             ],
           ),
@@ -234,25 +215,25 @@ class DashboardScreen extends ConsumerWidget {
         'icon': Icons.school,
         'label': l10n.get('task_stat_int'),
         'value': user.intelligence,
-        'color': GameTheme.manaBlue,
+        'color': AppTheme.manaBlue,
       },
       {
         'icon': Icons.fitness_center,
         'label': l10n.get('task_stat_disc'),
         'value': user.discipline,
-        'color': GameTheme.staminaGreen,
+        'color': AppTheme.staminaGreen,
       },
       {
         'icon': Icons.favorite,
         'label': l10n.get('task_stat_hp'),
         'value': user.health,
-        'color': GameTheme.hpRed,
+        'color': AppTheme.hpRed,
       },
       {
         'icon': Icons.attach_money,
         'label': l10n.get('task_stat_wlth'),
         'value': user.wealth,
-        'color': GameTheme.goldYellow,
+        'color': AppTheme.goldYellow,
       },
     ];
 
@@ -272,37 +253,38 @@ class DashboardScreen extends ConsumerWidget {
         return Container(
           padding: const EdgeInsets.all(8), // Kurangi padding
           decoration: BoxDecoration(
-            color: GameTheme.surface,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color: statColor.withValues(alpha: 0.3),
-              width: 2,
-            ),
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 stat['icon'] as IconData,
-                size: 20, // Kurangi ukuran icon
+                size: 24,
                 color: statColor,
-                shadows: [Shadow(color: statColor, blurRadius: 10)],
               ),
               const SizedBox(height: 8),
               Text(
                 stat['value'].toString(),
-                style: GameTheme.textTheme.bodyLarge?.copyWith(
+                style: AppTheme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppTheme.primaryDark,
                 ),
               ),
               const SizedBox(height: 4),
               Flexible(
                 child: Text(
                   stat['label'] as String,
-                  style: GameTheme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 8,
-                    color: statColor,
+                  style: AppTheme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 1,
@@ -323,15 +305,13 @@ class DashboardScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(
-          color: GameTheme.staminaGreen.withValues(alpha: 0.4),
-          width: 1.5,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.staminaGreen.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -343,10 +323,10 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Text(
                 'MISSION PROGRESS',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: GameTheme.staminaGreen,
-                  fontSize: 9,
-                  letterSpacing: 2,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.primaryDark,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
                 ),
               ),
               Container(
@@ -355,20 +335,14 @@ class DashboardScreen extends ConsumerWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: GameTheme.staminaGreen.withValues(alpha: 0.15),
-                  border: Border.all(color: GameTheme.staminaGreen, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: GameTheme.staminaGreen.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  color: AppTheme.staminaGreen.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '$percent%',
-                  style: GameTheme.neonTextStyle(
-                    GameTheme.staminaGreen,
-                    fontSize: 16,
+                  style: AppTheme.textTheme.titleMedium?.copyWith(
+                    color: AppTheme.staminaGreen,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -377,8 +351,8 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           RpgStatusBar(
             value: progress,
-            barColor: GameTheme.staminaGreen,
-            height: 18,
+            barColor: AppTheme.staminaGreen,
+            height: 8,
             segments: total > 0 ? total.clamp(2, 10) : 10,
             label: '$completed / $total QUESTS DONE',
           ),
@@ -397,13 +371,16 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               'TODAY\'S QUESTS',
-              style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 12),
+              style: AppTheme.textTheme.titleMedium?.copyWith(
+                color: AppTheme.primaryDark,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Container(
                 height: 1,
-                color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                color: AppTheme.primary.withOpacity(0.2),
               ),
             ),
           ],
@@ -413,8 +390,14 @@ class DashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: GameTheme.surface,
-              border: Border.all(color: Colors.white12, width: 1.5),
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                ),
+              ],
             ),
             child: Center(
               child: Column(
@@ -422,21 +405,14 @@ class DashboardScreen extends ConsumerWidget {
                   Icon(
                     Icons.rocket_launch,
                     size: 40,
-                    color: GameTheme.neonCyan.withValues(alpha: 0.4),
-                    shadows: [
-                      Shadow(
-                        color: GameTheme.neonCyan.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                      ),
-                    ],
+                    color: AppTheme.primary.withOpacity(0.4),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'NO MISSIONS TODAY',
-                    style: GameTheme.textTheme.bodySmall?.copyWith(
-                      color: Colors.white54,
-                      fontSize: 10,
-                      letterSpacing: 2,
+                    style: AppTheme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -453,22 +429,20 @@ class DashboardScreen extends ConsumerWidget {
               final task = recentTasks[index];
               final statColor = _getStatColor(task.statType);
               final borderColor = task.isCompleted
-                  ? GameTheme.staminaGreen.withValues(alpha: 0.4)
-                  : statColor.withValues(alpha: 0.2);
+                  ? AppTheme.staminaGreen.withOpacity(0.4)
+                  : Colors.transparent;
 
               return Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: GameTheme.surface,
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: borderColor, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          (task.isCompleted
-                                  ? GameTheme.staminaGreen
-                                  : statColor)
-                              .withValues(alpha: 0.07),
+                      color: Colors.black.withOpacity(0.04),
                       blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
@@ -479,17 +453,8 @@ class DashboardScreen extends ConsumerWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: statColor.withValues(alpha: 0.1),
-                        border: Border.all(
-                          color: statColor.withValues(alpha: 0.5),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: statColor.withValues(alpha: 0.2),
-                            blurRadius: 6,
-                          ),
-                        ],
+                        color: statColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
                       child: Icon(
                         _getStatIcon(task.statType),
@@ -504,17 +469,14 @@ class DashboardScreen extends ConsumerWidget {
                         children: [
                           Text(
                             task.title,
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 13,
+                            style: AppTheme.textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: task.isCompleted
-                                  ? Colors.grey[600]
-                                  : Colors.white,
+                                  ? Colors.grey[400]
+                                  : AppTheme.primaryDark,
                               decoration: task.isCompleted
                                   ? TextDecoration.lineThrough
                                   : null,
-                              decorationColor: Colors.grey[600],
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -528,30 +490,23 @@ class DashboardScreen extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: _getDifficultyColor(
                                     task.difficulty,
-                                  ).withValues(alpha: 0.1),
-                                  border: Border.all(
-                                    color: _getDifficultyColor(
-                                      task.difficulty,
-                                    ).withValues(alpha: 0.4),
-                                  ),
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   task.difficulty.displayName.toUpperCase(),
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 8,
+                                  style: AppTheme.textTheme.bodySmall?.copyWith(
+                                    fontSize: 9,
                                     color: _getDifficultyColor(task.difficulty),
-                                    letterSpacing: 0.5,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 '+${task.difficulty.xpValue} XP',
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 9,
-                                  color: GameTheme.goldYellow,
+                                style: AppTheme.textTheme.bodySmall?.copyWith(
+                                  color: AppTheme.goldYellow,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -562,12 +517,9 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     if (task.isCompleted)
                       Icon(
-                        Icons.check,
-                        color: GameTheme.staminaGreen,
-                        size: 20,
-                        shadows: [
-                          Shadow(color: GameTheme.staminaGreen, blurRadius: 10),
-                        ],
+                        Icons.check_circle,
+                        color: AppTheme.staminaGreen,
+                        size: 24,
                       ),
                   ],
                 ),
@@ -581,13 +533,13 @@ class DashboardScreen extends ConsumerWidget {
   Color _getStatColor(StatType stat) {
     switch (stat) {
       case StatType.intelligence:
-        return GameTheme.manaBlue;
+        return AppTheme.manaBlue;
       case StatType.discipline:
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
       case StatType.health:
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
       case StatType.wealth:
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
     }
   }
 
@@ -607,11 +559,11 @@ class DashboardScreen extends ConsumerWidget {
   Color _getDifficultyColor(TaskDifficulty difficulty) {
     switch (difficulty) {
       case TaskDifficulty.easy:
-        return GameTheme.staminaGreen;
+        return AppTheme.staminaGreen;
       case TaskDifficulty.medium:
-        return GameTheme.goldYellow;
+        return AppTheme.goldYellow;
       case TaskDifficulty.hard:
-        return GameTheme.hpRed;
+        return AppTheme.hpRed;
     }
   }
 }

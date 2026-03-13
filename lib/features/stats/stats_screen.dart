@@ -6,7 +6,7 @@ import '../../core/providers/task_provider.dart';
 import '../../core/providers/analytics_provider.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/models/user_model.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/rpg_status_bar.dart';
 import 'widgets/productivity_heatmap.dart';
 import 'widgets/insights_cards.dart';
@@ -28,13 +28,10 @@ class StatsScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         title: Text(
           l10n.get('nav_stats'),
-          style: GameTheme.neonTextStyle(GameTheme.neonPink, fontSize: 16),
         ),
       ),
       body: SingleChildScrollView(
@@ -62,7 +59,7 @@ class StatsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 3. AI Insights
-            _buildSectionHeader(l10n.get('stats_insight'), GameTheme.neonCyan),
+            _buildSectionHeader(l10n.get('stats_insight'), AppTheme.primaryDark),
             const SizedBox(height: 16),
             InsightsCards(analytics: analytics).animate().fadeIn(delay: 400.ms),
             const SizedBox(height: 32),
@@ -74,7 +71,7 @@ class StatsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 5. Advanced Charts
-            _buildSectionHeader(l10n.get('stats_charts'), GameTheme.manaBlue),
+            _buildSectionHeader(l10n.get('stats_charts'), AppTheme.manaBlue),
             const SizedBox(height: 16),
             AdvancedCharts(
               analytics: analytics,
@@ -82,7 +79,7 @@ class StatsScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 6. RPG Stats Detail
-            _buildSectionHeader(l10n.get('stats_rpg'), GameTheme.hpRed),
+            _buildSectionHeader(l10n.get('stats_rpg'), AppTheme.hpRed),
             const SizedBox(height: 16),
             _buildStatProgress(user, l10n).animate().fadeIn(delay: 1000.ms),
             const SizedBox(height: 40),
@@ -97,11 +94,15 @@ class StatsScreen extends ConsumerWidget {
       children: [
         Text(
           title.toUpperCase(),
-          style: GameTheme.neonTextStyle(color, fontSize: 10),
+          style: AppTheme.textTheme.titleSmall?.copyWith(
+            color: color,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Container(height: 1, color: color.withValues(alpha: 0.3)),
+          child: Container(height: 1, color: color.withOpacity(0.2)),
         ),
       ],
     );
@@ -116,15 +117,13 @@ class StatsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(
-          color: GameTheme.neonCyan.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.neonCyan.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -135,25 +134,25 @@ class StatsScreen extends ConsumerWidget {
             icon: Icons.star,
             value: user.level.toString(),
             label: l10n.get('stats_level'),
-            color: GameTheme.goldYellow,
+            color: AppTheme.goldYellow,
           ),
           _buildSummaryItem(
             icon: Icons.flash_on,
             value: user.totalXp.toString(),
             label: l10n.get('stats_total_xp'),
-            color: GameTheme.manaBlue,
+            color: AppTheme.manaBlue,
           ),
           _buildSummaryItem(
             icon: Icons.check_circle,
             value: completed.toString(),
             label: l10n.get('task_tab_completed'),
-            color: GameTheme.staminaGreen,
+            color: AppTheme.staminaGreen,
           ),
           _buildSummaryItem(
             icon: Icons.pending_actions,
             value: incomplete.toString(),
             label: l10n.get('task_tab_active'),
-            color: GameTheme.goldYellow,
+            color: AppTheme.goldYellow,
           ),
         ],
       ),
@@ -171,27 +170,23 @@ class StatsScreen extends ConsumerWidget {
         Icon(
           icon,
           color: color,
-          size: 22,
-          shadows: [Shadow(color: color, blurRadius: 10)],
+          size: 24,
         ),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 18,
+          style: AppTheme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppTheme.primaryDark,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 9,
-            color: color,
+          style: AppTheme.textTheme.bodySmall?.copyWith(
+            color: Colors.grey[600],
             letterSpacing: 0.5,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -207,15 +202,13 @@ class StatsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(
-          color: GameTheme.neonCyan.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.neonCyan.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -224,23 +217,26 @@ class StatsScreen extends ConsumerWidget {
         children: [
           Text(
             l10n.get('stats_level'),
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: GameTheme.neonCyan,
-              fontSize: 8,
-              letterSpacing: 2,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: AppTheme.primary,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             '${user.level}',
-            style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 22),
+            style: AppTheme.textTheme.displaySmall?.copyWith(
+              color: AppTheme.primaryDark,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 12),
           RpgStatusBar(
             value: xpProgress > 1 ? 1 : xpProgress,
-            barColor: GameTheme.neonCyan,
+            barColor: AppTheme.primary,
             height: 12,
-            segments: 5,
+            segments: 1, // Single continuous bar
             label: '$currentLevelXp / ${nextLevelXp - currentLevelBaseXp} XP',
           ),
         ],
@@ -252,15 +248,13 @@ class StatsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(
-          color: GameTheme.goldYellow.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.goldYellow.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -269,21 +263,23 @@ class StatsScreen extends ConsumerWidget {
         children: [
           Icon(
             Icons.local_fire_department,
-            color: GameTheme.goldYellow,
-            size: 24,
-            shadows: [Shadow(color: GameTheme.goldYellow, blurRadius: 12)],
+            color: AppTheme.goldYellow,
+            size: 28,
           ),
           const SizedBox(height: 8),
           Text(
             '${user.streak}',
-            style: GameTheme.neonTextStyle(GameTheme.goldYellow, fontSize: 18),
+            style: AppTheme.textTheme.headlineLarge?.copyWith(
+              color: AppTheme.primaryDark,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             l10n.get('stats_streak'),
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: GameTheme.goldYellow,
-              fontSize: 8,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: AppTheme.goldYellow,
+              fontWeight: FontWeight.bold,
               letterSpacing: 1,
             ),
           ),
@@ -297,25 +293,25 @@ class StatsScreen extends ConsumerWidget {
       {
         'label': 'INTELLIGENCE',
         'value': user.intelligence,
-        'color': GameTheme.manaBlue,
+        'color': AppTheme.manaBlue,
         'icon': Icons.school,
       },
       {
         'label': 'DISCIPLINE',
         'value': user.discipline,
-        'color': GameTheme.staminaGreen,
+        'color': AppTheme.staminaGreen,
         'icon': Icons.fitness_center,
       },
       {
         'label': 'HEALTH',
         'value': user.health,
-        'color': GameTheme.hpRed,
+        'color': AppTheme.hpRed,
         'icon': Icons.favorite,
       },
       {
         'label': 'WEALTH',
         'value': user.wealth,
-        'color': GameTheme.goldYellow,
+        'color': AppTheme.goldYellow,
         'icon': Icons.attach_money,
       },
     ];
@@ -332,15 +328,17 @@ class StatsScreen extends ConsumerWidget {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: GameTheme.surface,
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: statColor.withValues(alpha: 0.25),
-                  width: 1.5,
+                  color: statColor.withOpacity(0.2),
+                  width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: statColor.withValues(alpha: 0.08),
-                    blurRadius: 6,
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -351,17 +349,16 @@ class StatsScreen extends ConsumerWidget {
                     children: [
                       Icon(
                         stat['icon'] as IconData,
-                        size: 16,
+                        size: 20,
                         color: statColor,
-                        shadows: [Shadow(color: statColor, blurRadius: 8)],
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
                       Text(
                         stat['label'] as String,
-                        style: GameTheme.textTheme.bodySmall?.copyWith(
-                          fontSize: 9,
-                          color: statColor,
-                          letterSpacing: 1.5,
+                        style: AppTheme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.primaryDark,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.1,
                         ),
                       ),
                       const Spacer(),
@@ -371,16 +368,12 @@ class StatsScreen extends ConsumerWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: statColor.withValues(alpha: 0.1),
-                          border: Border.all(
-                            color: statColor.withValues(alpha: 0.4),
-                          ),
+                          color: statColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '${stat['value']} / $maxValue',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 9,
+                          style: AppTheme.textTheme.bodySmall?.copyWith(
                             color: statColor,
                             fontWeight: FontWeight.bold,
                           ),
@@ -392,8 +385,8 @@ class StatsScreen extends ConsumerWidget {
                   RpgStatusBar(
                     value: progress > 1 ? 1 : progress,
                     barColor: statColor,
-                    height: 14,
-                    segments: 10,
+                    height: 12,
+                    segments: 1,
                   ),
                 ],
               ),

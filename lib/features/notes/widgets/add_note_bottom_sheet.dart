@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/note_provider.dart';
-import '../../../core/theme/game_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class AddNoteBottomSheet extends ConsumerStatefulWidget {
   const AddNoteBottomSheet({super.key});
@@ -27,12 +27,8 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: const Border(
-          top: BorderSide(color: GameTheme.neonCyan, width: 2),
-          left: BorderSide(color: GameTheme.neonCyan, width: 1),
-          right: BorderSide(color: GameTheme.neonCyan, width: 1),
-        ),
+        color: AppTheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -42,7 +38,7 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: GameTheme.neonCyan.withValues(alpha: 0.4),
+              color: Colors.grey[300],
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -52,7 +48,10 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
             padding: const EdgeInsets.all(16),
             child: Text(
               'NEW LOG ENTRY',
-              style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 12),
+              style: AppTheme.textTheme.titleMedium?.copyWith(
+                color: AppTheme.primaryDark,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
 
@@ -68,45 +67,41 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
                     // Title Field
                     Text(
                       'TITLE',
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        fontSize: 9,
-                        color: GameTheme.neonCyan,
-                        letterSpacing: 2,
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                        letterSpacing: 1.5,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _titleController,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                        fontSize: 14,
+                      style: AppTheme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter log title ...',
-                        hintStyle: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Colors.grey[700],
-                          fontSize: 13,
+                        hintStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[500],
                         ),
                         filled: true,
-                        fillColor: GameTheme.background,
+                        fillColor: AppTheme.background,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                            color: Colors.grey[300]!,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                            color: Colors.grey[300]!,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                            color: GameTheme.neonCyan,
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppTheme.primary,
                             width: 1.5,
                           ),
                         ),
@@ -124,46 +119,42 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
                     // Content Field
                     Text(
                       'CONTENT',
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        fontSize: 9,
-                        color: GameTheme.neonCyan,
-                        letterSpacing: 2,
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                        letterSpacing: 1.5,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _contentController,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                        fontSize: 14,
+                      style: AppTheme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
                       ),
                       maxLines: 10,
                       decoration: InputDecoration(
                         hintText: 'Write your log here...',
-                        hintStyle: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Colors.grey[700],
-                          fontSize: 13,
+                        hintStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[500],
                         ),
                         filled: true,
-                        fillColor: GameTheme.background,
+                        fillColor: AppTheme.background,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                            color: Colors.grey[300]!,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
+                            color: Colors.grey[300]!,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                            color: GameTheme.neonCyan,
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppTheme.primary,
                             width: 1.5,
                           ),
                         ),
@@ -195,17 +186,18 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.grey[700]!,
+                          color: Colors.grey[400]!,
                           width: 1.5,
                         ),
                       ),
                       child: Center(
                         child: Text(
                           'CANCEL',
-                          style: GameTheme.textTheme.bodySmall?.copyWith(
-                            fontSize: 9,
-                            color: Colors.grey[500],
+                          style: AppTheme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[600],
                             letterSpacing: 1,
                           ),
                         ),
@@ -220,24 +212,15 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: GameTheme.neonCyan.withValues(alpha: 0.15),
-                        border: Border.all(
-                          color: GameTheme.neonCyan,
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: GameTheme.neonCyan.withValues(alpha: 0.2),
-                            blurRadius: 8,
-                          ),
-                        ],
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
                         child: Text(
                           'SAVE LOG',
-                          style: GameTheme.textTheme.bodySmall?.copyWith(
-                            fontSize: 9,
-                            color: GameTheme.neonCyan,
+                          style: AppTheme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                             letterSpacing: 1,
                           ),
                         ),
@@ -267,13 +250,11 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: GameTheme.surface,
+              backgroundColor: AppTheme.surface,
               content: Text(
                 'LOG SAVED',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: GameTheme.staminaGreen,
-                  fontSize: 12,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.staminaGreen,
                 ),
               ),
             ),
@@ -284,7 +265,7 @@ class _AddNoteBottomSheetState extends ConsumerState<AddNoteBottomSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: $e'),
-              backgroundColor: GameTheme.hpRed,
+              backgroundColor: AppTheme.hpRed,
             ),
           );
         }

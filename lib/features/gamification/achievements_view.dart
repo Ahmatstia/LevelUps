@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/providers/achievement_provider.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/rpg_status_bar.dart';
 
 class AchievementsView extends ConsumerWidget {
@@ -34,10 +34,10 @@ class AchievementsView extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               'NO ACHIEVEMENTS YET',
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[700],
-                fontSize: 10,
-                letterSpacing: 2,
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[500],
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5,
               ),
             ),
           ],
@@ -58,27 +58,26 @@ class AchievementsView extends ConsumerWidget {
         final achievement = achievements[index];
         final isUnlocked = achievement.isUnlocked;
         final accentColor = isUnlocked
-            ? GameTheme.goldYellow
-            : Colors.grey[700]!;
+            ? AppTheme.goldYellow
+            : Colors.grey[400]!;
 
         return Container(
               decoration: BoxDecoration(
-                color: GameTheme.surface,
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isUnlocked
-                      ? GameTheme.goldYellow.withValues(alpha: 0.6)
-                      : Colors.white12,
-                  width: isUnlocked ? 2.0 : 1.5,
+                      ? AppTheme.goldYellow.withOpacity(0.4)
+                      : Colors.transparent,
+                  width: isUnlocked ? 1.5 : 0,
                 ),
-                boxShadow: isUnlocked
-                    ? [
-                        BoxShadow(
-                          color: GameTheme.goldYellow.withValues(alpha: 0.2),
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                        ),
-                      ]
-                    : null,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -90,35 +89,15 @@ class AchievementsView extends ConsumerWidget {
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.1),
-                        border: Border.all(
-                          color: accentColor.withValues(alpha: 0.5),
-                          width: 1.5,
-                        ),
-                        boxShadow: isUnlocked
-                            ? [
-                                BoxShadow(
-                                  color: accentColor.withValues(alpha: 0.35),
-                                  blurRadius: 12,
-                                  spreadRadius: 2,
-                                ),
-                              ]
-                            : null,
+                        color: accentColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         _getIconFromString(achievement.iconData),
                         size: 28,
                         color: isUnlocked
-                            ? GameTheme.goldYellow
-                            : Colors.grey[700],
-                        shadows: isUnlocked
-                            ? [
-                                Shadow(
-                                  color: GameTheme.goldYellow,
-                                  blurRadius: 10,
-                                ),
-                              ]
-                            : null,
+                            ? AppTheme.goldYellow
+                            : Colors.grey[400],
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -127,10 +106,10 @@ class AchievementsView extends ConsumerWidget {
                     Text(
                       achievement.title.toUpperCase(),
                       textAlign: TextAlign.center,
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        fontSize: 8,
-                        letterSpacing: 0.5,
-                        color: isUnlocked ? Colors.white : Colors.grey[600],
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        letterSpacing: 1,
+                        color: isUnlocked ? AppTheme.primaryDark : Colors.grey[500],
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -142,10 +121,9 @@ class AchievementsView extends ConsumerWidget {
                     Text(
                       achievement.description,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 9,
-                        color: Colors.grey[500],
+                      style: AppTheme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        color: Colors.grey[600],
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -161,20 +139,15 @@ class AchievementsView extends ConsumerWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: GameTheme.staminaGreen.withValues(alpha: 0.1),
-                          border: Border.all(
-                            color: GameTheme.staminaGreen.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
+                          color: AppTheme.staminaGreen.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '✓ ${DateFormat('MMM dd').format(achievement.dateUnlocked!)}',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 8,
-                            color: GameTheme.staminaGreen,
-                            letterSpacing: 0.5,
+                          style: AppTheme.textTheme.bodySmall?.copyWith(
+                            fontSize: 10,
+                            color: AppTheme.staminaGreen,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       )
@@ -184,15 +157,15 @@ class AchievementsView extends ConsumerWidget {
                             achievement.currentValue / achievement.targetValue,
                         barColor: accentColor,
                         height: 10,
-                        segments: achievement.targetValue.clamp(2, 10),
+                        segments: 1,
                         animate: isUnlocked,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${achievement.currentValue} / ${achievement.targetValue}',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 8,
+                        style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                           color: accentColor,
                         ),
                       ),

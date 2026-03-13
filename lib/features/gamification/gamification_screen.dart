@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/providers/locale_provider.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import 'quests_view.dart';
 import 'achievements_view.dart';
 import 'skill_tree_view.dart';
@@ -31,13 +31,10 @@ class _GamificationScreenState extends ConsumerState<GamificationScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         title: Text(
           l10n.get('nav_rpg'),
-          style: GameTheme.neonTextStyle(GameTheme.neonPink, fontSize: 16),
         ),
         actions: [
           Container(
@@ -47,32 +44,24 @@ class _GamificationScreenState extends ConsumerState<GamificationScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: GameTheme.goldYellow.withValues(alpha: 0.15),
-                  border: Border.all(color: GameTheme.goldYellow, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: GameTheme.goldYellow.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                    ),
-                  ],
+                  color: AppTheme.goldYellow.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.goldYellow, width: 1.5),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.star,
-                      color: GameTheme.goldYellow,
-                      size: 14,
-                      shadows: [
-                        Shadow(color: GameTheme.goldYellow, blurRadius: 10),
-                      ],
+                      color: AppTheme.goldYellow,
+                      size: 16,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '$skillPoints SP',
-                      style: GameTheme.textTheme.bodySmall?.copyWith(
-                        color: GameTheme.goldYellow,
-                        fontSize: 9,
+                      style: AppTheme.textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.goldYellow,
+                        fontWeight: FontWeight.bold,
                         letterSpacing: 1,
                       ),
                     ),
@@ -90,8 +79,15 @@ class _GamificationScreenState extends ConsumerState<GamificationScreen> {
             margin: const EdgeInsets.fromLTRB(16, 4, 16, 0),
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: GameTheme.surface,
-              border: Border.all(color: Colors.white12, width: 1),
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: List.generate(tabs.length, (i) {
@@ -104,11 +100,8 @@ class _GamificationScreenState extends ConsumerState<GamificationScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: isSelected
                           ? BoxDecoration(
-                              color: GameTheme.neonPink.withValues(alpha: 0.15),
-                              border: Border.all(
-                                color: GameTheme.neonPink,
-                                width: 1.5,
-                              ),
+                              color: AppTheme.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
                             )
                           : null,
                       child: Column(
@@ -116,28 +109,21 @@ class _GamificationScreenState extends ConsumerState<GamificationScreen> {
                         children: [
                           Icon(
                             tabs[i].$2,
-                            size: 16,
+                            size: 20,
                             color: isSelected
-                                ? GameTheme.neonPink
-                                : Colors.grey[700],
-                            shadows: isSelected
-                                ? [
-                                    const Shadow(
-                                      color: GameTheme.neonPink,
-                                      blurRadius: 10,
-                                    ),
-                                  ]
-                                : null,
+                                ? AppTheme.primary
+                                : Colors.grey[500],
                           ),
                           const SizedBox(height: 4),
                           Text(
                             tabs[i].$1.toUpperCase(),
-                            style: GameTheme.textTheme.bodySmall?.copyWith(
-                              fontSize: 7,
+                            style: AppTheme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10,
                               color: isSelected
-                                  ? GameTheme.neonPink
-                                  : Colors.grey[700],
-                              letterSpacing: 0.5,
+                                  ? AppTheme.primary
+                                  : Colors.grey[500],
+                              letterSpacing: 1,
                             ),
                           ),
                         ],

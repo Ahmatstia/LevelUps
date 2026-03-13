@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/note_model.dart';
 import '../../../core/providers/note_provider.dart';
-import '../../../core/theme/game_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class NoteDetailScreen extends ConsumerStatefulWidget {
   final NoteModel note;
@@ -38,14 +38,11 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
         '${widget.note.updatedAt.day}/${widget.note.updatedAt.month}/${widget.note.updatedAt.year} ${widget.note.updatedAt.hour}:${widget.note.updatedAt.minute.toString().padLeft(2, '0')}';
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: GameTheme.neonCyan.withValues(alpha: 0.7),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -54,8 +51,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             IconButton(
               icon: Icon(
                 Icons.edit,
-                color: GameTheme.manaBlue,
-                shadows: [Shadow(color: GameTheme.manaBlue, blurRadius: 8)],
+                color: AppTheme.manaBlue,
               ),
               onPressed: () => setState(() => _isEditing = true),
             ),
@@ -63,8 +59,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             IconButton(
               icon: Icon(
                 Icons.close,
-                color: GameTheme.hpRed,
-                shadows: [Shadow(color: GameTheme.hpRed, blurRadius: 8)],
+                color: AppTheme.hpRed,
               ),
               onPressed: () {
                 setState(() => _isEditing = false);
@@ -75,8 +70,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             IconButton(
               icon: Icon(
                 Icons.check,
-                color: GameTheme.staminaGreen,
-                shadows: [Shadow(color: GameTheme.staminaGreen, blurRadius: 8)],
+                color: AppTheme.staminaGreen,
               ),
               onPressed: _updateNote,
             ),
@@ -92,17 +86,14 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: GameTheme.neonCyan.withValues(alpha: 0.08),
-                border: Border.all(
-                  color: GameTheme.neonCyan.withValues(alpha: 0.2),
-                ),
+                color: AppTheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 date,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10,
-                  color: GameTheme.neonCyan.withValues(alpha: 0.7),
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -112,30 +103,30 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             _isEditing
                 ? TextFormField(
                     controller: _titleController,
-                    style: GameTheme.neonTextStyle(
-                      GameTheme.neonCyan,
-                      fontSize: 14,
+                    style: AppTheme.textTheme.titleLarge?.copyWith(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Title',
-                      hintStyle: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Colors.grey[700],
+                      hintStyle: AppTheme.textTheme.titleLarge?.copyWith(
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.bold,
                       ),
                       border: InputBorder.none,
                     ),
                   )
                 : Text(
                     widget.note.title.toUpperCase(),
-                    style: GameTheme.neonTextStyle(
-                      GameTheme.neonCyan,
-                      fontSize: 14,
+                    style: AppTheme.textTheme.titleLarge?.copyWith(
+                      color: AppTheme.primaryDark,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
             const SizedBox(height: 8),
             Container(
               height: 1,
-              color: GameTheme.neonCyan.withValues(alpha: 0.15),
+              color: Colors.grey[300],
             ),
             const SizedBox(height: 20),
 
@@ -143,28 +134,23 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
             _isEditing
                 ? TextFormField(
                     controller: _contentController,
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: Colors.white,
+                    style: AppTheme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
                       height: 1.6,
                     ),
                     maxLines: null,
                     decoration: InputDecoration(
                       hintText: 'Write your log...',
-                      hintStyle: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Colors.grey[700],
+                      hintStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[500],
                       ),
                       border: InputBorder.none,
                     ),
                   )
                 : Text(
                     widget.note.content,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: Colors.grey[300],
+                    style: AppTheme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[800],
                       height: 1.6,
                     ),
                   ),
@@ -178,13 +164,12 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
     if (_titleController.text.isEmpty || _contentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: GameTheme.surface,
+          backgroundColor: AppTheme.surface,
           content: Text(
             'TITLE AND CONTENT CANNOT BE EMPTY',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: GameTheme.hpRed,
-              fontSize: 11,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: AppTheme.hpRed,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -205,13 +190,11 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: GameTheme.surface,
+            backgroundColor: AppTheme.surface,
             content: Text(
               'LOG UPDATED',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                color: GameTheme.staminaGreen,
-                fontSize: 12,
+              style: AppTheme.textTheme.bodyMedium?.copyWith(
+                color: Colors.black87,
               ),
             ),
             duration: const Duration(seconds: 1),
@@ -223,7 +206,7 @@ class _NoteDetailScreenState extends ConsumerState<NoteDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: GameTheme.hpRed,
+            backgroundColor: AppTheme.hpRed,
           ),
         );
       }

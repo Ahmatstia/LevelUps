@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import '../../core/providers/locale_provider.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/services/notification_service.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/rpg_status_bar.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -53,13 +53,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final user = ref.watch(userProvider);
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         title: Text(
           l10n.get('settings_title'),
-          style: GameTheme.neonTextStyle(GameTheme.neonCyan, fontSize: 16),
         ),
       ),
       body: ListView(
@@ -77,22 +74,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: GameTheme.neonCyan.withValues(alpha: 0.1),
+                          color: AppTheme.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
                           border: Border.all(
-                            color: GameTheme.neonCyan,
+                            color: AppTheme.primary,
                             width: 2,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: GameTheme.neonCyan.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                            ),
-                          ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.person,
                           size: 32,
-                          color: GameTheme.neonCyan,
+                          color: AppTheme.primary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -102,18 +94,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             Text(
                               user.name.toUpperCase(),
-                              style: GameTheme.neonTextStyle(
-                                GameTheme.neonPink,
-                                fontSize: 14,
+                              style: AppTheme.textTheme.titleMedium?.copyWith(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'LEVEL ${user.level}  •  ${user.totalXp} XP',
-                              style: GameTheme.textTheme.bodySmall?.copyWith(
-                                color: GameTheme.goldYellow,
-                                fontSize: 9,
-                                letterSpacing: 1,
+                              style: AppTheme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -126,7 +117,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     value:
                         (user.totalXp - 100 * (user.level - 1)) /
                         (100 * user.level - 100 * (user.level - 1)),
-                    barColor: GameTheme.neonCyan,
+                    barColor: AppTheme.primary,
                     label: 'XP TO NEXT LEVEL',
                     segments: 10,
                   ),
@@ -146,15 +137,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 _settingRow(
                   icon: Icons.language,
-                  iconColor: GameTheme.manaBlue,
+                  iconColor: AppTheme.manaBlue,
                   title: l10n.get('settings_language'),
                   trailing: DropdownButton<String>(
                     value: currentLocale,
                     underline: const SizedBox(),
-                    dropdownColor: GameTheme.surface,
-                    style: GameTheme.textTheme.bodySmall?.copyWith(
-                      color: GameTheme.neonCyan,
-                      fontSize: 10,
+                    dropdownColor: AppTheme.surface,
+                    style: AppTheme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
                     ),
                     items: const [
                       DropdownMenuItem(
@@ -176,16 +166,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _divider(),
                 _settingRow(
                   icon: Icons.dark_mode,
-                  iconColor: GameTheme.neonPink,
+                  iconColor: AppTheme.primaryDark,
                   title: l10n.get('settings_dark_mode'),
                   trailing: Switch(
                     value: true,
-                    activeTrackColor: GameTheme.neonCyan.withValues(alpha: 0.5),
-                    activeThumbColor: GameTheme.neonCyan,
+                    activeTrackColor: AppTheme.primary.withOpacity(0.5),
+                    activeThumbColor: AppTheme.primary,
                     onChanged: (_) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          backgroundColor: GameTheme.surface,
+                          backgroundColor: AppTheme.surface,
                           content: Text(
                             l10n.get('settings_theme_soon'),
                             style: const TextStyle(color: Colors.white),
@@ -198,12 +188,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _divider(),
                 _settingRow(
                   icon: Icons.volume_up,
-                  iconColor: GameTheme.goldYellow,
+                  iconColor: AppTheme.goldYellow,
                   title: 'SOUND EFFECTS',
                   trailing: Switch(
                     value: true,
-                    activeTrackColor: GameTheme.neonCyan.withValues(alpha: 0.5),
-                    activeThumbColor: GameTheme.neonCyan,
+                    activeTrackColor: AppTheme.primary.withOpacity(0.5),
+                    activeThumbColor: AppTheme.primary,
                     onChanged: (val) {
                       // SfxService.instance.setEnabled(val);
                     },
@@ -224,38 +214,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 _settingRow(
                   icon: Icons.wb_sunny,
-                  iconColor: GameTheme.goldYellow,
+                  iconColor: AppTheme.goldYellow,
                   title: 'MORNING BRIEFING (07:00)',
                   trailing: Switch(
                     value: _getBool('notif_morning'),
-                    activeTrackColor: GameTheme.goldYellow.withValues(
-                      alpha: 0.4,
-                    ),
-                    activeThumbColor: GameTheme.goldYellow,
+                    activeTrackColor: AppTheme.goldYellow.withOpacity(0.4),
+                    activeThumbColor: AppTheme.goldYellow,
                     onChanged: (val) => _setNotifBool('notif_morning', val),
                   ),
                 ),
                 _divider(),
                 _settingRow(
                   icon: Icons.nights_stay,
-                  iconColor: GameTheme.manaBlue,
+                  iconColor: AppTheme.manaBlue,
                   title: 'EVENING RECAP (21:00)',
                   trailing: Switch(
                     value: _getBool('notif_evening'),
-                    activeTrackColor: GameTheme.manaBlue.withValues(alpha: 0.4),
-                    activeThumbColor: GameTheme.manaBlue,
+                    activeTrackColor: AppTheme.manaBlue.withOpacity(0.4),
+                    activeThumbColor: AppTheme.manaBlue,
                     onChanged: (val) => _setNotifBool('notif_evening', val),
                   ),
                 ),
                 _divider(),
                 _settingRow(
                   icon: Icons.warning_amber,
-                  iconColor: GameTheme.hpRed,
+                  iconColor: AppTheme.hpRed,
                   title: 'OVERDUE ALERTS',
                   trailing: Switch(
                     value: _getBool('notif_overdue'),
-                    activeTrackColor: GameTheme.hpRed.withValues(alpha: 0.4),
-                    activeThumbColor: GameTheme.hpRed,
+                    activeTrackColor: AppTheme.hpRed.withOpacity(0.4),
+                    activeThumbColor: AppTheme.hpRed,
                     onChanged: (val) => _setNotifBool('notif_overdue', val),
                   ),
                 ),
@@ -266,16 +254,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 20),
 
           // ── Danger Zone ─────────────────────────────────────────
-          _sectionLabel('DANGER ZONE', color: GameTheme.hpRed),
+          _sectionLabel('DANGER ZONE', color: AppTheme.hpRed),
           const SizedBox(height: 8),
 
           _gamePanel(
-            borderColor: GameTheme.hpRed.withValues(alpha: 0.4),
+            borderColor: AppTheme.hpRed.withOpacity(0.4),
             child: _settingRow(
               icon: Icons.delete_forever,
-              iconColor: GameTheme.hpRed,
+              iconColor: AppTheme.hpRed,
               title: l10n.get('settings_reset'),
-              titleColor: GameTheme.hpRed,
+              titleColor: AppTheme.hpRed,
               trailing: const Icon(
                 Icons.chevron_right,
                 color: Colors.grey,
@@ -284,7 +272,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    backgroundColor: GameTheme.surface,
+                    backgroundColor: AppTheme.surface,
                     content: Text(
                       l10n.get('settings_reset_demo'),
                       style: const TextStyle(color: Colors.white),
@@ -300,10 +288,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: Text(
               'LEVELUP APP  v1.0\nPHASE 8 RELEASE',
               textAlign: TextAlign.center,
-              style: GameTheme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[800],
-                fontSize: 7,
-                letterSpacing: 2,
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[400],
+                letterSpacing: 1.5,
               ),
             ),
           ),
@@ -316,16 +303,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(color: borderColor ?? Colors.white12, width: 1.5),
-        boxShadow: borderColor != null
-            ? [
-                BoxShadow(
-                  color: borderColor.withValues(alpha: 0.15),
-                  blurRadius: 8,
-                ),
-              ]
-            : null,
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor ?? Colors.transparent, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: child,
     );
@@ -334,16 +321,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget _sectionLabel(String label, {Color? color}) {
     return Text(
       label,
-      style: GameTheme.textTheme.bodySmall?.copyWith(
-        color: color ?? GameTheme.neonCyan.withValues(alpha: 0.7),
-        fontSize: 8,
-        letterSpacing: 3,
+      style: AppTheme.textTheme.bodySmall?.copyWith(
+        color: color ?? Colors.grey[600],
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1.5,
       ),
     );
   }
 
   Widget _divider() {
-    return Divider(height: 1, color: Colors.white10, thickness: 1);
+    return Divider(height: 1, color: Colors.grey[300], thickness: 1);
   }
 
   Widget _settingRow({
@@ -364,11 +351,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                border: Border.all(
-                  color: iconColor.withValues(alpha: 0.4),
-                  width: 1,
-                ),
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 16, color: iconColor),
             ),
@@ -376,10 +360,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Expanded(
               child: Text(
                 title.toUpperCase(),
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  fontSize: 9,
-                  color: titleColor ?? Colors.white70,
-                  letterSpacing: 1,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: titleColor ?? Colors.black87,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

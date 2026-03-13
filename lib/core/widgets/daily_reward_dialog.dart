@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:confetti/confetti.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/providers/user_provider.dart';
 
 class DailyRewardDialog extends ConsumerStatefulWidget {
@@ -82,9 +82,9 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
   }
 
   Color get _tierColor {
-    if (widget.streakDay >= 7) return GameTheme.goldYellow;
-    if (widget.streakDay >= 3) return GameTheme.neonPink;
-    return GameTheme.neonCyan;
+    if (widget.streakDay >= 7) return AppTheme.goldYellow;
+    if (widget.streakDay >= 3) return AppTheme.accent;
+    return AppTheme.primary;
   }
 
   @override
@@ -99,10 +99,10 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
           numberOfParticles: 30,
           gravity: 0.3,
           colors: [
-            GameTheme.neonCyan,
-            GameTheme.neonPink,
-            GameTheme.goldYellow,
-            GameTheme.staminaGreen,
+            AppTheme.primary,
+            AppTheme.accent,
+            AppTheme.goldYellow,
+            AppTheme.staminaGreen,
           ],
         ),
         Dialog(
@@ -110,13 +110,14 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
           child: Container(
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: GameTheme.surface,
-              border: Border.all(color: _tierColor, width: 2),
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: _tierColor.withValues(alpha: 0.3),
+                  color: Colors.black.withOpacity(0.1),
                   blurRadius: 20,
                   spreadRadius: 4,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -126,7 +127,10 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
                 // Header
                 Text(
                   _tierLabel,
-                  style: GameTheme.neonTextStyle(_tierColor, fontSize: 14),
+                  style: AppTheme.textTheme.titleLarge?.copyWith(
+                    color: _tierColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.3),
                 const SizedBox(height: 24),
@@ -137,20 +141,12 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _tierColor.withValues(alpha: 0.1),
-                        border: Border.all(color: _tierColor, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _tierColor.withValues(alpha: 0.4),
-                            blurRadius: 20,
-                          ),
-                        ],
+                        color: _tierColor.withOpacity(0.1),
                       ),
                       child: Icon(
                         Icons.bolt,
                         color: _tierColor,
                         size: 44,
-                        shadows: [Shadow(color: _tierColor, blurRadius: 12)],
                       ),
                     )
                     .animate(delay: 200.ms)
@@ -164,7 +160,10 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
                 // XP Amount
                 Text(
                       '+${widget.xpAmount} XP',
-                      style: GameTheme.neonTextStyle(_tierColor, fontSize: 36),
+                      style: AppTheme.textTheme.displayLarge?.copyWith(
+                        color: _tierColor,
+                        fontSize: 36,
+                      ),
                     )
                     .animate(delay: 400.ms)
                     .fadeIn()
@@ -173,9 +172,8 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
 
                 Text(
                   'Login Day ${widget.streakDay}',
-                  style: GameTheme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[400],
-                    letterSpacing: 1,
+                  style: AppTheme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
                   ),
                 ).animate(delay: 500.ms).fadeIn(),
                 const SizedBox(height: 6),
@@ -183,10 +181,9 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
                 if (widget.streakDay >= 7)
                   Text(
                     'Streak bonus activated! Keep it up!',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      color: GameTheme.goldYellow,
+                    style: AppTheme.textTheme.bodySmall?.copyWith(
+                      color: AppTheme.goldYellow,
+                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ).animate(delay: 600.ms).fadeIn(),
@@ -201,18 +198,17 @@ class _DailyRewardDialogState extends ConsumerState<DailyRewardDialog> {
                       backgroundColor: _tierColor,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                      'CLAIM REWARD!',
-                      style: GameTheme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.black,
+                      'CLAIM REWARD',
+                      style: AppTheme.textTheme.titleSmall?.copyWith(
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
                       ),
                     ),
                   ),

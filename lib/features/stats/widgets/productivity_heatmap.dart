@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/locale_provider.dart';
-import '../../../core/theme/game_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class ProductivityHeatmap extends ConsumerWidget {
   final Map<DateTime, int> heatmapData;
@@ -34,15 +34,13 @@ class ProductivityHeatmap extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(
-          color: GameTheme.staminaGreen.withValues(alpha: 0.25),
-          width: 1.5,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.staminaGreen.withValues(alpha: 0.08),
-            blurRadius: 6,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -56,19 +54,17 @@ class ProductivityHeatmap extends ConsumerWidget {
               Expanded(
                 child: Text(
                   l10n.get('stats_heatmap').toUpperCase(),
-                  style: GameTheme.textTheme.bodySmall?.copyWith(
-                    fontSize: 9,
-                    color: GameTheme.staminaGreen,
-                    letterSpacing: 2,
+                  style: AppTheme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.staminaGreen,
+                    letterSpacing: 1.5,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 l10n.get('stats_heatmap_desc'),
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10,
+                style: AppTheme.textTheme.bodySmall?.copyWith(
                   color: Colors.grey[500],
                 ),
               ),
@@ -90,28 +86,28 @@ class ProductivityHeatmap extends ConsumerWidget {
                     children: [
                       Text(
                         l10n.get('cal_mon'),
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 9,
-                          color: Colors.grey[600],
+                        style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[400],
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         l10n.get('cal_wed'),
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 9,
-                          color: Colors.grey[600],
+                        style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[400],
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         l10n.get('cal_fri'),
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 9,
-                          color: Colors.grey[600],
+                        style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[400],
                         ),
                       ),
                     ],
@@ -128,10 +124,10 @@ class ProductivityHeatmap extends ConsumerWidget {
             children: [
               Text(
                 l10n.get('heatmap_less'),
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 9,
-                  color: Colors.grey[600],
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[400],
                 ),
               ),
               const SizedBox(width: 4),
@@ -147,10 +143,10 @@ class ProductivityHeatmap extends ConsumerWidget {
               const SizedBox(width: 4),
               Text(
                 l10n.get('heatmap_more'),
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 9,
-                  color: Colors.grey[600],
+                style: AppTheme.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[400],
                 ),
               ),
             ],
@@ -217,32 +213,19 @@ class ProductivityHeatmap extends ConsumerWidget {
 
   Widget _buildCell(int count, int maxTasks) {
     Color color;
-    List<BoxShadow>? glow;
 
     if (count == 0) {
-      color = Colors.white.withValues(alpha: 0.04);
+      color = AppTheme.background;
     } else {
       double ratio = count / maxTasks;
       if (ratio <= 0.25) {
-        color = GameTheme.neonCyan.withValues(alpha: 0.2);
+        color = AppTheme.primary.withOpacity(0.2);
       } else if (ratio <= 0.5) {
-        color = GameTheme.neonCyan.withValues(alpha: 0.4);
+        color = AppTheme.primary.withOpacity(0.4);
       } else if (ratio <= 0.75) {
-        color = GameTheme.neonCyan.withValues(alpha: 0.65);
-        glow = [
-          BoxShadow(
-            color: GameTheme.neonCyan.withValues(alpha: 0.2),
-            blurRadius: 3,
-          ),
-        ];
+        color = AppTheme.primary.withOpacity(0.65);
       } else {
-        color = GameTheme.neonCyan;
-        glow = [
-          BoxShadow(
-            color: GameTheme.neonCyan.withValues(alpha: 0.4),
-            blurRadius: 4,
-          ),
-        ];
+        color = AppTheme.primary;
       }
     }
 
@@ -251,13 +234,7 @@ class ProductivityHeatmap extends ConsumerWidget {
       height: 14,
       decoration: BoxDecoration(
         color: color,
-        border: Border.all(
-          color: count > 0
-              ? GameTheme.neonCyan.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.03),
-          width: 0.5,
-        ),
-        boxShadow: glow,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
@@ -266,32 +243,29 @@ class ProductivityHeatmap extends ConsumerWidget {
     Color color;
     switch (intensity) {
       case 0:
-        color = Colors.white.withValues(alpha: 0.04);
+        color = AppTheme.background;
         break;
       case 1:
-        color = GameTheme.neonCyan.withValues(alpha: 0.2);
+        color = AppTheme.primary.withOpacity(0.2);
         break;
       case 2:
-        color = GameTheme.neonCyan.withValues(alpha: 0.4);
+        color = AppTheme.primary.withOpacity(0.4);
         break;
       case 3:
-        color = GameTheme.neonCyan.withValues(alpha: 0.65);
+        color = AppTheme.primary.withOpacity(0.65);
         break;
       case 4:
-        color = GameTheme.neonCyan;
+        color = AppTheme.primary;
         break;
       default:
-        color = Colors.white.withValues(alpha: 0.04);
+        color = AppTheme.background;
     }
     return Container(
       width: 10,
       height: 10,
       decoration: BoxDecoration(
         color: color,
-        border: Border.all(
-          color: GameTheme.neonCyan.withValues(alpha: 0.1),
-          width: 0.5,
-        ),
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }

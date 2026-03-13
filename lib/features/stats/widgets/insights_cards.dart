@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/analytics_provider.dart';
 import '../../../core/providers/locale_provider.dart';
-import '../../../core/theme/game_theme.dart';
+import '../../../core/theme/app_theme.dart';
 
 class InsightsCards extends ConsumerWidget {
   final AnalyticsData analytics;
@@ -20,7 +20,7 @@ class InsightsCards extends ConsumerWidget {
             Expanded(
               child: _buildInsightCard(
                 icon: Icons.access_time_filled,
-                iconColor: GameTheme.manaBlue,
+                iconColor: AppTheme.manaBlue,
                 title: l10n.get('insight_prod_time'),
                 value: analytics.mostProductiveTime,
                 subtitle: l10n.get('insight_prod_time_desc'),
@@ -30,7 +30,7 @@ class InsightsCards extends ConsumerWidget {
             Expanded(
               child: _buildInsightCard(
                 icon: Icons.calendar_today,
-                iconColor: GameTheme.neonPink,
+                iconColor: AppTheme.accent,
                 title: l10n.get('insight_best_day'),
                 value: analytics.mostProductiveDay,
                 subtitle: l10n.get('insight_best_day_desc'),
@@ -44,7 +44,7 @@ class InsightsCards extends ConsumerWidget {
             Expanded(
               child: _buildInsightCard(
                 icon: Icons.timer,
-                iconColor: GameTheme.staminaGreen,
+                iconColor: AppTheme.staminaGreen,
                 title: l10n.get('insight_avg_time'),
                 value: _formatDuration(analytics.averageCompletionTime, l10n),
                 subtitle: l10n.get('insight_avg_time_desc'),
@@ -55,7 +55,7 @@ class InsightsCards extends ConsumerWidget {
               Expanded(
                 child: _buildInsightCard(
                   icon: Icons.warning_amber_rounded,
-                  iconColor: GameTheme.hpRed,
+                  iconColor: AppTheme.hpRed,
                   title: l10n.get('insight_burnout'),
                   value: l10n.get('insight_burnout_val'),
                   subtitle: l10n.get('insight_burnout_desc'),
@@ -66,7 +66,7 @@ class InsightsCards extends ConsumerWidget {
               Expanded(
                 child: _buildInsightCard(
                   icon: Icons.spa,
-                  iconColor: GameTheme.staminaGreen,
+                  iconColor: AppTheme.staminaGreen,
                   title: l10n.get('insight_pace'),
                   value: l10n.get('insight_pace_val'),
                   subtitle: l10n.get('insight_pace_desc'),
@@ -87,22 +87,26 @@ class InsightsCards extends ConsumerWidget {
     bool isAlert = false,
   }) {
     final borderColor = isAlert
-        ? GameTheme.hpRed.withValues(alpha: 0.4)
-        : iconColor.withValues(alpha: 0.2);
+        ? AppTheme.hpRed.withOpacity(0.4)
+        : iconColor.withOpacity(0.2);
+    final bgColor = isAlert
+        ? AppTheme.hpRed.withOpacity(0.08)
+        : AppTheme.surface;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isAlert
-            ? GameTheme.hpRed.withValues(alpha: 0.08)
-            : GameTheme.surface,
-        border: Border.all(color: borderColor, width: 1.5),
-        boxShadow: [
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: borderColor, 
+          width: isAlert ? 1.5 : 1
+        ),
+        boxShadow: isAlert ? [] : [
           BoxShadow(
-            color: (isAlert ? GameTheme.hpRed : iconColor).withValues(
-              alpha: 0.08,
-            ),
-            blurRadius: 6,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -110,35 +114,32 @@ class InsightsCards extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+              color: iconColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
               color: iconColor,
-              size: 16,
-              shadows: [Shadow(color: iconColor, blurRadius: 8)],
+              size: 20,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             title,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 10,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
               color: Colors.grey[500],
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 13,
+            style: AppTheme.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isAlert ? GameTheme.hpRed : Colors.white,
+              color: isAlert ? AppTheme.hpRed : AppTheme.primaryDark,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -146,10 +147,8 @@ class InsightsCards extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 9,
-              color: Colors.grey[600],
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[400],
             ),
           ),
         ],

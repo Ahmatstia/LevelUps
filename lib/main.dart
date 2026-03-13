@@ -17,7 +17,7 @@ import 'core/models/achievement_model.dart';
 import 'core/models/quest_model.dart';
 import 'core/models/skill_node_model.dart';
 import 'core/models/habit_model.dart';
-import 'core/theme/game_theme.dart';
+import 'core/theme/app_theme.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/user_provider.dart';
 import 'core/providers/task_provider.dart';
@@ -77,7 +77,7 @@ class LevelUpApp extends StatelessWidget {
     return MaterialApp(
       title: 'LevelUp',
       debugShowCheckedModeBanner: false,
-      theme: GameTheme.darkTheme,
+      theme: AppTheme.lightTheme,
       home: const SplashScreen(),
     );
   }
@@ -137,15 +137,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
       body: screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: GameTheme.surface,
-          border: const Border(
-            top: BorderSide(color: GameTheme.neonCyan, width: 2),
-          ),
+          color: AppTheme.surface,
           boxShadow: [
             BoxShadow(
-              color: GameTheme.neonCyan.withValues(alpha: 0.2),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
-              spreadRadius: 2,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
@@ -155,17 +152,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: GameTheme.neonCyan,
-          unselectedItemColor: Colors.grey[700],
-          selectedLabelStyle: const TextStyle(
-            fontFamily: 'PressStart2P',
-            fontSize: 7,
-            letterSpacing: 0.5,
+          selectedItemColor: AppTheme.primary,
+          unselectedItemColor: Colors.grey[400],
+          selectedLabelStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontFamily: 'PressStart2P',
-            fontSize: 7,
-            letterSpacing: 0.5,
+          unselectedLabelStyle: AppTheme.textTheme.bodyMedium?.copyWith(
+            fontSize: 10,
           ),
           items: [
             BottomNavigationBarItem(

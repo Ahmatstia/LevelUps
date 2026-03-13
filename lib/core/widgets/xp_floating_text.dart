@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/game_theme.dart';
+import '../theme/app_theme.dart';
 
 /// Shows a floating "+XP" text at the given [position] that
 /// floats upward and fades out — classic JRPG damage number style.
@@ -114,24 +114,23 @@ class _FloatingXpAnimatedState extends State<_FloatingXpAnimated>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: GameTheme.goldYellow.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: GameTheme.goldYellow, width: 1),
+              color: AppTheme.goldYellow.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppTheme.goldYellow.withOpacity(0.5), width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: GameTheme.goldYellow.withValues(alpha: 0.5),
-                  blurRadius: 10,
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Text(
               '+${widget.xp} XP',
-              style: GameTheme.neonTextStyle(GameTheme.goldYellow, fontSize: 12)
-                  .copyWith(
-                    shadows: [
-                      Shadow(color: GameTheme.goldYellow, blurRadius: 12),
-                    ],
-                  ),
+              style: AppTheme.textTheme.bodyMedium?.copyWith(
+                color: AppTheme.goldYellow,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

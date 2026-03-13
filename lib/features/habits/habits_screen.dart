@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/models/habit_model.dart';
 import '../../core/providers/habit_provider.dart';
-import '../../core/theme/game_theme.dart';
+import '../../core/theme/app_theme.dart';
 import 'widgets/habit_card.dart';
 import 'widgets/add_habit_dialog.dart';
 
@@ -17,13 +17,10 @@ class HabitsScreen extends ConsumerWidget {
     final total = habits.length;
 
     return Scaffold(
-      backgroundColor: GameTheme.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: GameTheme.background,
-        elevation: 0,
         title: Text(
           'HABITS',
-          style: GameTheme.neonTextStyle(GameTheme.staminaGreen, fontSize: 16),
         ),
       ),
       floatingActionButton: _buildFab(context, ref),
@@ -80,15 +77,13 @@ class HabitsScreen extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
-        border: Border.all(
-          color: GameTheme.staminaGreen.withValues(alpha: 0.4),
-          width: 1.5,
-        ),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: GameTheme.staminaGreen.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -100,10 +95,10 @@ class HabitsScreen extends ConsumerWidget {
             children: [
               Text(
                 'TODAY\'S HABITS',
-                style: GameTheme.textTheme.bodySmall?.copyWith(
-                  color: GameTheme.staminaGreen,
-                  fontSize: 9,
-                  letterSpacing: 2,
+                style: AppTheme.textTheme.bodyMedium?.copyWith(
+                  color: AppTheme.primaryDark,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
                 ),
               ),
               Container(
@@ -112,39 +107,33 @@ class HabitsScreen extends ConsumerWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: GameTheme.staminaGreen.withValues(alpha: 0.15),
-                  border: Border.all(color: GameTheme.staminaGreen, width: 1.5),
+                  color: AppTheme.staminaGreen.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '$done / $total',
-                  style: GameTheme.neonTextStyle(
-                    GameTheme.staminaGreen,
-                    fontSize: 14,
+                  style: AppTheme.textTheme.titleMedium?.copyWith(
+                    color: AppTheme.staminaGreen,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          // Progress bar manual bergaya game
-          Container(
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              border: Border.all(color: Colors.white24, width: 1.5),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: progress,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: GameTheme.staminaGreen,
-                  boxShadow: [
-                    BoxShadow(
-                      color: GameTheme.staminaGreen.withValues(alpha: 0.5),
-                      blurRadius: 6,
-                    ),
-                  ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              height: 8,
+              color: AppTheme.primary.withOpacity(0.1),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
             ),
@@ -156,10 +145,9 @@ class HabitsScreen extends ConsumerWidget {
 
   Widget _buildFab(BuildContext context, WidgetRef ref) {
     return FloatingActionButton(
-      backgroundColor: GameTheme.staminaGreen,
+      backgroundColor: AppTheme.primary,
       onPressed: () => AddHabitDialog.show(context, ref),
-      shape: const RoundedRectangleBorder(),
-      child: const Icon(Icons.add, color: Colors.black),
+      child: const Icon(Icons.add, color: Colors.white),
     );
   }
 
@@ -171,23 +159,21 @@ class HabitsScreen extends ConsumerWidget {
           Icon(
             Icons.repeat,
             size: 48,
-            color: GameTheme.staminaGreen.withValues(alpha: 0.4),
+            color: AppTheme.primary.withOpacity(0.4),
           ),
           const SizedBox(height: 16),
           Text(
             'NO HABITS YET',
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: Colors.white54,
-              fontSize: 10,
-              letterSpacing: 2,
+            style: AppTheme.textTheme.bodyMedium?.copyWith(
+              color: Colors.grey[500],
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Tap + to add your first daily habit',
-            style: GameTheme.textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
-              fontSize: 9,
+            style: AppTheme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[400],
             ),
           ),
         ],
@@ -198,19 +184,18 @@ class HabitsScreen extends ConsumerWidget {
   void _showCheckinSuccess(BuildContext context, HabitModel habit) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: GameTheme.surface,
+        backgroundColor: AppTheme.surface,
         behavior: SnackBarBehavior.floating,
-        shape: const RoundedRectangleBorder(),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         content: Row(
           children: [
-            Icon(Icons.check_circle, color: GameTheme.staminaGreen, size: 18),
+            Icon(Icons.check_circle, color: AppTheme.staminaGreen, size: 20),
             const SizedBox(width: 10),
             Text(
-              '✅ +${habit.xpReward} XP  🔥 ${habit.currentStreak} day streak!',
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 12,
-                color: Colors.white,
+              '+${habit.xpReward} XP  🔥 ${habit.currentStreak} day streak!',
+              style: AppTheme.textTheme.bodySmall?.copyWith(
+                color: AppTheme.primaryDark,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
